@@ -14,11 +14,39 @@
   "scripts": {
     "clean": "rm -rf lib",
     "compile": "tsc",
-    "prepublish": "npm run clean && npm run compile"
+    "prepublish": "npm run clean && npm run compile",
+    "test": "jest --verbose"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
     "node": ">=6"
+  },
+  "dependencies": {
+    "lru-cache": "^4.1.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.0.0",
+    "@types/lru-cache": "^4.1.1",
+    "jest": "^23.1.0",
+    "ts-jest": "^22.4.6"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.(ts|js)$": "ts-jest"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testRegex": "/__tests__/.*$",
+    "testPathIgnorePatterns": ["testsuite.ts"],
+    "globals": {
+      "ts-jest": {
+        "skipBabel": true
+      }
+    }
   }
 }

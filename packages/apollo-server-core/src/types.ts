@@ -11,7 +11,7 @@ import {
   PersistedQueryOptions,
 } from './graphqlOptions';
 
-export { KeyValueCache } from 'apollo-datasource-rest';
+export { KeyValueCache } from 'apollo-server-caching';
 
 export type Context<T = any> = T;
 export type ContextFunction<T = any> = (

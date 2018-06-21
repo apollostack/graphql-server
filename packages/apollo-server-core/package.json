@@ -55,6 +55,7 @@
     "apollo-datasource-rest": "^2.0.0-rc.0",
     "apollo-engine-reporting": "0.0.0-beta.12",
     "apollo-server-env": "^2.0.0-rc.0",
+    "apollo-server-caching": "^2.0.0-rc.0",
     "apollo-server-errors": "^2.0.0-rc.0",
     "apollo-tracing": "^0.2.0-beta.1",
     "graphql-extensions": "0.1.0-beta.13",
