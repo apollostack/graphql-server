@@ -48,7 +48,7 @@ module.exports = {
           ],
           Testing: ['testing/mocking', 'testing/testing', 'testing/graphql-playground'],
           Performance: ['performance/caching', 'performance/apq'],
-          Security: ['security/authentication', 'security/terminating-ssl'],
+          Security: ['security/authentication', 'security/proxy-configuration', 'security/terminating-ssl'],
           Integrations: ['integrations/middleware'],
           Deployment: [
             'deployment/heroku',
@@ -64,8 +64,7 @@ module.exports = {
             'api/apollo-gateway',
             'api/graphql-tools',
           ],
-          Appendices: [
-            'proxy-configuration',
+          Migration: [
             'migration-two-dot',
             'migration-engine',
             'migration-file-uploads',

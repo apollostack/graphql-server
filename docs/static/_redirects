@@ -1,5 +1,8 @@
 / /docs/apollo-server/
 
+# Recategorize Proxy configuration under security
+/docs/apollo-server/proxy-configuration /docs/apollo-server/security/proxy-configuration/
+
 # The test-utils lived at its current home for about 5 days.
 # It at least exists on some slides and Tweets.
 /docs/apollo-server/features/test-utils.html /docs/apollo-server/features/testing.html
