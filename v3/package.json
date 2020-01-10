@@ -55,11 +55,12 @@
     "@types/node": "^12.7.8",
     "codecov": "3.5.0",
     "graphql": "14.5.4",
-    "jest": "24.9.0",
+    "jest": "^24.9.0",
     "jest-junit": "7.0.0",
     "jest-matcher-utils": "24.9.0",
+    "prettier": "^1.19.1",
     "ts-jest": "24.0.2",
-    "typescript": "3.6.2"
+    "typescript": "^3.7.2"
   },
   "peerDependencies": {
     "graphql": "^14.5.0"
