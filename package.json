@@ -13,7 +13,7 @@
     "release:version-bump:federation": "npm run release:version-bump -- --force-publish=@apollo/federation,@apollo/gateway",
     "release:start-ci-publish": "node -p '`Publish (dist-tag:${process.env.APOLLO_DIST_TAG || \"latest\"})`' | git tag -F - \"publish/$(date -u '+%Y%m%d%H%M%S')\" && git push origin \"$(git describe --match='publish/*' --tags --exact-match HEAD)\"",
     "postinstall": "lerna run prepare --ignore=@apollo/server && npm run compile && lerna bootstrap",
-    "test": "jest --verbose",
+    "test": "npm -C v3 test",
     "test:clean": "jest --clearCache",
     "test:watch": "jest --verbose --watchAll",
     "testonly": "npm test",

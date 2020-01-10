@@ -13,17 +13,18 @@ import {
 
 // These should not be imported from here.
 import { Config as BaseConfig } from 'apollo-server-core';
-import { buildServiceDefinition } from '@apollographql/apollo-tools';
+import { buildServiceDefinition, GraphQLSchemaModule } from '@apollographql/apollo-tools';
 
 export { default as gql } from 'graphql-tag';
 import {
   Context,
   ContextFunction,
 } from './execution';
+import { Core, obj, Plan } from './liftoff';
 
 // A subset of the base configuration.
 type Config = Pick<BaseConfig,
-  | 'modules'
+  // | 'modules'
   | 'dataSources'
   | 'parseOptions'
   | 'context'
@@ -35,7 +36,18 @@ type Config = Pick<BaseConfig,
   | 'plugins'
 // TODO(AS3) AGM?
 // | 'engine'
->;
+> & Partial<Pick<BaseConfig, 'modules'>>
+
+export const ServerConfig = obj <Config> `Apollo Server Config` ({})
+export const Schema = obj <GraphQLSchemaModule> `Schema module` ()
+
+export async function Apollo(plan: Plan) {
+  const core = new Core(plan)
+  const config = await core.only(ServerConfig)
+  config.modules = await core.once(Schema)
+  const server = new ApolloServer(config)
+  return server
+}
 
 type SchemaDerivedData = {
   // A store that, when enabled (default), will store the parsed and validated

@@ -47,6 +47,7 @@
     "apollo-server-plugin-base": "^0.6.3",
     "apollo-server-testing": "^2.9.2",
     "apollo-server-types": "^0.2.3",
+    "error-stack-parser": "^2.0.4",
     "graphql-tag": "^2.10.1"
   },
   "devDependencies": {
@@ -58,8 +59,8 @@
     "jest": "24.9.0",
     "jest-junit": "7.0.0",
     "jest-matcher-utils": "24.9.0",
-    "ts-jest": "24.0.2",
-    "typescript": "3.6.2"
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.7.2"
   },
   "peerDependencies": {
     "graphql": "^14.5.0"
