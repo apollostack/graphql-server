@@ -252,9 +252,9 @@ type Query {
               },
             },
             User: {
-              __resolveReference(object) {
-                expect(object.id).toEqual(1);
-                return Promise.resolve({ firstName: 'James' });
+              __resolveReferences(object) {
+                expect(object[0].id).toEqual(1);
+                return Promise.resolve([{ firstName: 'James' }]);
               },
             },
           },

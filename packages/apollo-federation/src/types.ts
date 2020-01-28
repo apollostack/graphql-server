@@ -53,6 +53,12 @@ function addTypeNameToPossibleReturn<T>(
   return maybeObject as null | T & { __typename: string };
 }
 
+export type GraphQLReferencesResolver<TContext> = (
+  references: object[],
+  context: TContext,
+  info: GraphQLResolveInfo,
+) => any;
+
 export type GraphQLReferenceResolver<TContext> = (
   reference: object,
   context: TContext,
@@ -62,10 +68,12 @@ export type GraphQLReferenceResolver<TContext> = (
 declare module 'graphql/type/definition' {
   interface GraphQLObjectType {
     resolveReference?: GraphQLReferenceResolver<any>;
+    resolveReferences?: GraphQLReferencesResolver<any>;
   }
 
   interface GraphQLObjectTypeConfig<TSource, TContext> {
     resolveReference?: GraphQLReferenceResolver<TContext>;
+    resolveReferences?: GraphQLReferencesResolver<TContext>;
   }
 }
 
@@ -77,34 +85,61 @@ export const entitiesField: GraphQLFieldConfig<any, any> = {
     },
   },
   description: '',
-  resolve(_source, { representations }, context, info) {
-    return representations.map((reference: { __typename: string } & object) => {
-      const { __typename } = reference;
+  async resolve(_source, { representations }, context, info) {
+    const result = async () => {
+      const buckets: { [typename: string]: object[] } = {};
 
-      const type = info.schema.getType(__typename);
-      if (!type || !isObjectType(type)) {
-        throw new Error(
-          `The _entities resolver tried to load an entity for type "${__typename}", but no object type of that name was found in the schema`,
-        );
-      }
+      representations.forEach((reference: { __typename: string }) => {
+        const { __typename } = reference;
+        if (!buckets[__typename]) buckets[__typename] = [];
+        buckets[__typename].push(reference);
+      });
 
-      const resolveReference = type.resolveReference
-        ? type.resolveReference
-        : function defaultResolveReference() {
-            return reference;
-          };
+      return Promise.all(
+        Object.entries(buckets).map(([__typename, references]) => {
+          const type = info.schema.getType(__typename);
+          if (!type || !isObjectType(type)) {
+            throw new Error(
+              `The _entities resolver tried to load an entity for type "${__typename}", but no object type of that name was found in the schema`,
+            );
+          }
 
-      // FIXME somehow get this to show up special in Engine traces?
-      const result = resolveReference(reference, context, info);
+          if (type.resolveReferences) {
+            const results = type.resolveReferences(references, context, info);
+            if (isPromise(results)) {
+              return results.then((xs: any) =>
+                xs.map((x: any) => addTypeNameToPossibleReturn(x, __typename)),
+              );
+            }
+            return results.map((result: any) =>
+              addTypeNameToPossibleReturn(result, __typename),
+            );
+          } else {
+            return Promise.all(
+              references.map(reference => {
+                const resolveReference = type.resolveReference
+                  ? type.resolveReference
+                  : function defaultResolveReference() {
+                      return reference;
+                    };
 
-      if (isPromise(result)) {
-        return result.then((x: any) =>
-          addTypeNameToPossibleReturn(x, __typename),
-        );
-      }
+                // FIXME somehow get this to show up special in Engine traces?
+                const result = resolveReference(reference, context, info);
 
-      return addTypeNameToPossibleReturn(result, __typename);
-    });
+                if (isPromise(result)) {
+                  return result.then((x: any) =>
+                    addTypeNameToPossibleReturn(x, __typename),
+                  );
+                }
+
+                return addTypeNameToPossibleReturn(result, __typename);
+              }),
+            );
+          }
+        }),
+      );
+    };
+    return (await result()).flat();
   },
 };
 
