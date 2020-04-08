@@ -59,6 +59,7 @@
     "jest": "24.9.0",
     "jest-junit": "7.0.0",
     "jest-matcher-utils": "24.9.0",
+    "node-mocks-http": "^1.8.1",
     "ts-jest": "24.0.2",
     "typescript": "3.7.3"
   },

@@ -1,7 +1,7 @@
 import { ApolloServer, gql } from "../index";
+import { GraphQLSchemaModule } from "../types";
 
-// TODO(AS3) Why can't I apply the `GraphQLSchemaModule` type here?
-const testModule = {
+const testModule: GraphQLSchemaModule = {
   typeDefs: gql`
     type Book {
       title: String
@@ -33,7 +33,9 @@ describe("ApolloServer", () => {
     const operation = await (new ApolloServer({
       modules: [testModule],
     })).executeOperation({
-      query: 'query GetBooks { books { author } }',
+      request: {
+        query: 'query GetBooks { books { author } }',
+      },
     });
 
     expect(operation).toHaveProperty(['data', 'books', 0, 'author']);

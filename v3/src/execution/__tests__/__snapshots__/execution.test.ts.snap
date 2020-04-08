@@ -373,7 +373,7 @@ exports[`parseGraphqlRequest Returns an error for invalid queries - empty select
 
 exports[`parseGraphqlRequest Returns an error for invalid queries - missing closing } 1`] = `[GraphQLError: Syntax Error: Expected Name, found <EOF>]`;
 
-exports[`processGraphqlRequest Executable queries - basic - { people { name } } 1`] = `
+exports[`processGraphqlRequestAgainstSchema Executable queries - basic - { people { name } } 1`] = `
 Object {
   "people": Array [
     Object {
@@ -392,7 +392,7 @@ Object {
 }
 `;
 
-exports[`processGraphqlRequest Executable queries - with directives - { people { name { friends { name } } } 1`] = `
+exports[`processGraphqlRequestAgainstSchema Executable queries - with directives - { people { name { friends { name } } } 1`] = `
 Object {
   "people": Array [
     Object {
@@ -455,7 +455,7 @@ Object {
 }
 `;
 
-exports[`processGraphqlRequest Executable queries - with multiple documents - { people { name } } 1`] = `
+exports[`processGraphqlRequestAgainstSchema Executable queries - with multiple documents - { people { name } } 1`] = `
 Object {
   "people": Array [
     Object {
@@ -474,7 +474,7 @@ Object {
 }
 `;
 
-exports[`processGraphqlRequest Executable queries - with nested selection sets - { people { name friends { name friends { name } } } } 1`] = `
+exports[`processGraphqlRequestAgainstSchema Executable queries - with nested selection sets - { people { name friends { name friends { name } } } } 1`] = `
 Object {
   "people": Array [
     Object {
@@ -669,38 +669,38 @@ Object {
 }
 `;
 
-exports[`processGraphqlRequest Invalid queries - basic 1`] = `
+exports[`processGraphqlRequestAgainstSchema Invalid queries - basic 1`] = `
 Array [
   [GraphQLError: Cannot query field "invalidField" on type "Query".],
 ]
 `;
 
-exports[`processGraphqlRequest Invalid queries - missing directive 1`] = `
+exports[`processGraphqlRequestAgainstSchema Invalid queries - missing directive 1`] = `
 Array [
   [GraphQLError: Unknown directive "invalid".],
 ]
 `;
 
-exports[`processGraphqlRequest Invalid queries - with invalid selection sets 1`] = `
+exports[`processGraphqlRequestAgainstSchema Invalid queries - with invalid selection sets 1`] = `
 Array [
   [GraphQLError: Cannot query field "invalidField" on type "Person".],
 ]
 `;
 
-exports[`processGraphqlRequest Invalid queries - with multiple errors 1`] = `
+exports[`processGraphqlRequestAgainstSchema Invalid queries - with multiple errors 1`] = `
 Array [
   [GraphQLError: Cannot query field "invalidOne" on type "Person".],
   [GraphQLError: Cannot query field "invalidTwo" on type "Query".],
 ]
 `;
 
-exports[`processGraphqlRequest Non-executable queries - error field throws 1`] = `
+exports[`processGraphqlRequestAgainstSchema Non-executable queries - error field throws 1`] = `
 Array [
   [GraphQLError: Error while resolving \`error\` field],
 ]
 `;
 
-exports[`processGraphqlRequest Non-executable queries - throws multiple errors 1`] = `
+exports[`processGraphqlRequestAgainstSchema Non-executable queries - throws multiple errors 1`] = `
 Array [
   [GraphQLError: Error while resolving \`error\` field],
   [GraphQLError: Error while resolving \`nestedError\` field],
@@ -710,19 +710,19 @@ Array [
 ]
 `;
 
-exports[`processGraphqlRequest Unparseable queries - empty query 1`] = `
+exports[`processGraphqlRequestAgainstSchema Unparseable queries - empty query 1`] = `
 Array [
   [GraphQLError: Syntax Error: Expected Name, found }],
 ]
 `;
 
-exports[`processGraphqlRequest Unparseable queries - empty selection set 1`] = `
+exports[`processGraphqlRequestAgainstSchema Unparseable queries - empty selection set 1`] = `
 Array [
   [GraphQLError: Syntax Error: Expected Name, found }],
 ]
 `;
 
-exports[`processGraphqlRequest Unparseable queries - missing closing } 1`] = `
+exports[`processGraphqlRequestAgainstSchema Unparseable queries - missing closing } 1`] = `
 Array [
   [GraphQLError: Syntax Error: Expected Name, found <EOF>],
 ]

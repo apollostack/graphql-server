@@ -1,59 +1,70 @@
 export {
-  processGraphQLRequest,
   GraphQLRequestContext,
   GraphQLRequestPipelineConfig,
 } from 'apollo-server-core/dist/requestPipeline';
-import {
-  GraphQLRequest,
-  GraphQLResponse,
-  VariableValues,
-} from 'apollo-server-types';
 import {
   DocumentNode,
   parse,
   GraphQLError,
   GraphQLSchema,
   validate,
-  ExecutionResult,
   separateOperations,
 } from 'graphql';
+import { GraphQLRequest, GraphQLResponse, VariableValues } from "../types";
 import { execute } from './execute';
-export { GraphQLRequest, GraphQLResponse };
 
-// TODO(AS3) I'm not sure if this is execution.  Perhaps, a top-level export.
-export { GraphQLSchemaModule } from 'apollo-graphql';
+export type UserContext = Record<string, any>;
 
-export { Context, ContextFunction } from 'apollo-server-core';
-
-/** Options for {@link processGraphQLRequest} */
-interface ProcessRequestInput<TContext extends Record<string, any>> {
+/** Input for {@link processGraphqlRequest} */
+interface ProcessGraphqlRequestInput<TRequestContext extends UserContext> {
+  /**
+   * A object consisting of a query string and, optionally,
+   * an operationName, and variables.
+   */
   request: GraphQLRequest;
-  schema: GraphQLSchema;
-  context?: TContext;
+  /**
+   * An optional context object which is available during GraphQL execution.
+   */
+  context?: TRequestContext;
 }
+
+type ProcessGraphqlRequestAgainstSchemaInput<
+  TRequestContext extends UserContext
+> = ProcessGraphqlRequestInput<TRequestContext> & {
+  /**
+   * The `GraphQLSchema` to validate and execute the request against.
+   */
+  schema: GraphQLSchema
+};
+
+export type ProcessGraphqlRequest<
+  TContext extends UserContext = UserContext
+> = (input: ProcessGraphqlRequestInput<TContext>) => Promise<GraphQLResponse>;
+export type ProcessGraphqlRequestAgainstSchema<
+  TContext extends UserContext = UserContext
+> = (input: ProcessGraphqlRequestAgainstSchemaInput<TContext>) =>
+  Promise<GraphQLResponse> ;
 
 /**
  * Process a GraphQLRequest. This includes parsing, validation,
  * and execution of a query against a provided schema.
  *
- * @param args
- * @param args.request - A GraphQLRequest object consisting of a query string and, optionally, an operationName, and variables
- * @param args.schema - A GraphQLSchema to validate and execute the request against
- * @param args.context - An optional context object which is available during GraphQL execution
+ * @param input An object containing the relevant properties from
+ *              `ProcessGraphqlRequestInput`.
  *
  * @returns A Promise consisting of:
  *   1. Errors if parsing or validation errors occurred
  *   2. Data and errors if execution occurred but encountered errors
  *   3. Data without errors if execution was successful without errors
  */
-export async function processGraphqlRequest<
-  TContext extends Record<string, any> = Record<string, any>
->({
-  request,
-  schema,
-  context,
-}: ProcessRequestInput<TContext>): Promise<ExecutionResult> {
-  const { query, operationName, variables } = request;
+export const processGraphqlRequestAgainstSchema:
+  ProcessGraphqlRequestAgainstSchema = async function (input) {
+
+  const {
+    request: { query, operationName, variables },
+    schema,
+    context,
+  } = input;
 
   if (!query) {
     return {
@@ -78,7 +89,7 @@ export async function processGraphqlRequest<
     return { errors: documentValidationErrors };
   }
 
-  return await executeGraphqlRequest<TContext>({
+  return await executeGraphqlRequest({
     schema,
     document: parseResult.document,
     operationName,
@@ -148,9 +159,7 @@ export function validateGraphqlRequest({
 }
 
 /** Options for {@link executeGraphqlRequest} */
-interface ExecutionInput<
-  TContext extends Record<string, any> = Record<string, any>
-> {
+interface ExecutionInput<TContext extends UserContext = UserContext> {
   schema: GraphQLSchema;
   document: DocumentNode;
   operationName?: string;
@@ -174,15 +183,13 @@ interface ExecutionInput<
  *
  * @see https://github.com/graphql/graphql-spec/blob/master/spec/Section%207%20--%20Response.md#response-format
  */
-export async function executeGraphqlRequest<
-  TContext extends Record<string, any> = Record<string, any>
->({
+export async function executeGraphqlRequest({
   schema,
   document,
   operationName,
   variables,
   context,
-}: ExecutionInput<TContext>): Promise<ExecutionResult> {
+}: ExecutionInput): Promise<GraphQLResponse> {
   return await execute({
     schema,
     document,

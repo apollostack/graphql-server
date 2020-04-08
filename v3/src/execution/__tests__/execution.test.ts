@@ -2,7 +2,7 @@ import {
   parseGraphqlRequest,
   validateGraphqlRequest,
   executeGraphqlRequest,
-  processGraphqlRequest
+  processGraphqlRequestAgainstSchema
 } from "..";
 import { astSerializer } from "../../snapshotSerializers";
 import { VariableValues, gql } from "apollo-server-core";
@@ -323,11 +323,11 @@ describe("executeGraphqlRequest", () => {
   );
 });
 
-describe("processGraphqlRequest", () => {
+describe("processGraphqlRequestAgainstSchema", () => {
   it.each(validQueryTests)(
     "Executable queries - %s",
     async (_, { query, operationName, variables }) => {
-      const { data, errors } = await processGraphqlRequest({
+      const { data, errors } = await processGraphqlRequestAgainstSchema({
         schema,
         request: {
           query,
@@ -344,7 +344,7 @@ describe("processGraphqlRequest", () => {
   it.each(unparseableQueryTests)(
     "Unparseable queries - %s",
     async (_, query) => {
-      const { errors } = await processGraphqlRequest({
+      const { errors } = await processGraphqlRequestAgainstSchema({
         schema,
         request: {
           query
@@ -358,7 +358,7 @@ describe("processGraphqlRequest", () => {
   it.each(invalidQueryTests)(
     "Invalid queries - %s",
     async (_, { query, operationName }) => {
-      const { errors } = await processGraphqlRequest({
+      const { errors } = await processGraphqlRequestAgainstSchema({
         schema,
         request: {
           query,
@@ -373,7 +373,7 @@ describe("processGraphqlRequest", () => {
   it.each(nonExecutableQueryTests)(
     "Non-executable queries - %s",
     async (_, { query }) => {
-      const { errors } = await processGraphqlRequest({
+      const { errors } = await processGraphqlRequestAgainstSchema({
         schema,
         request: {
           query
@@ -387,7 +387,7 @@ describe("processGraphqlRequest", () => {
 
   it("Passes a modifiable context object to resolvers", async () => {
     const context = Object.create(null);
-    const { data } = await processGraphqlRequest({
+    const { data } = await processGraphqlRequestAgainstSchema({
       schema,
       request: {
         query: graphql`
@@ -399,7 +399,7 @@ describe("processGraphqlRequest", () => {
       context
     });
 
-    expect(data!.modifiesContext).toBe("Context modified!");
+    expect(data && data.modifiesContext).toBe("Context modified!");
     expect(context).toHaveProperty("modified");
   });
 });

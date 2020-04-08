@@ -4,22 +4,16 @@ import { DocumentNode } from 'graphql/language/ast';
 import { InMemoryLRUCache } from './caching';
 import { approximateObjectSize } from './utilities';
 import {
-  GraphQLRequest,
-  GraphQLResponse,
-  processGraphQLRequest,
-  GraphQLRequestContext,
-  GraphQLRequestPipelineConfig,
+  ProcessGraphqlRequest,
+  processGraphqlRequestAgainstSchema,
 } from './execution';
+export { default as httpHandler } from "./transports/http/handler";
 
 // These should not be imported from here.
 import { Config as BaseConfig } from 'apollo-server-core';
 import { buildServiceDefinition } from '@apollographql/apollo-tools';
 
 export { default as gql } from 'graphql-tag';
-import {
-  Context,
-  ContextFunction,
-} from './execution';
 
 // A subset of the base configuration.
 type Config = Pick<BaseConfig,
@@ -48,7 +42,7 @@ type SchemaDerivedData = {
 export class ApolloServer {
   // public requestOptions: Partial<GraphQLOptions<any>> = Object.create(null);
 
-  private userContext?: Context | ContextFunction;
+  // private userContext?: Context | ContextFunction;
   // TODO(AS3) Reconsider these for Apollo Graph Manager
   // private engineReportingAgent?: import('apollo-engine-reporting').EngineReportingAgent;
   // private engineServiceId?: string;
@@ -65,7 +59,8 @@ export class ApolloServer {
     if (!config) throw new Error('ApolloServer requires options.');
 
     // TODO(AS3) Rename content variables to be more clear, like `userContext`.
-    this.userContext = this.config.context;
+    // TODO(AS3) Reconsider whether context is here at all!
+    // this.userContext = this.config.context;
 
     // Plugins will be instantiated if they aren't already, and this.plugins
     // is populated accordingly.
@@ -270,67 +265,27 @@ export class ApolloServer {
     });
   }
 
-  public async executeOperation<
-    R extends GraphQLRequest,
-    S extends GraphQLResponse = GraphQLResponse
-  >(
-    request: R,
-    responseInit: S = Object.create(null),
-  ) {
+  public executeOperation: ProcessGraphqlRequest = async (input) => {
+    const { schema } = await this.schemaDerivedData;
 
-    const { schema, documentStore } = await this.schemaDerivedData;
+    // // TODO(AS3) The transport will provide context.
+    // const integrationContextArgument = Object.create(null);
 
-    // TODO(AS3) The transport will provide context.
-    const integrationContextArgument = Object.create(null);
+    // try {
+    //   context =
+    //     typeof this.userContext === 'function'
+    //       ? await this.userContext(integrationContextArgument || Object.create(null))
+    //       : this.userContext || Object.create(null);
+    // } catch (error) {
+    //   // Defer context error resolution to inside of runQuery
+    //   context = () => {
+    //     throw error;
+    //   };
+    // }
 
-    let context: Context;
-
-    try {
-      context =
-        typeof this.userContext === 'function'
-          ? await this.userContext(integrationContextArgument || Object.create(null))
-          : this.userContext || Object.create(null);
-    } catch (error) {
-      // Defer context error resolution to inside of runQuery
-      context = () => {
-        throw error;
-      };
-    }
-
-    // TODO(AS3) This context argument is maybe quite wrong, check it.
-    const options: GraphQLRequestPipelineConfig<typeof context> = {
+    return processGraphqlRequestAgainstSchema({
+      ...input,
       schema,
-      plugins: this.plugins,
-      documentStore,
-      // Allow overrides from options. Be explicit about a couple of them to
-      // avoid a bad side effect of the otherwise useful noUnusedLocals option
-      // (https://github.com/Microsoft/TypeScript/issues/21673).
-      // TODO(AS3)
-      // persistedQueries: this.requestOptions
-      //   .persistedQueries as PersistedQueryOptions,
-      // TODO(AS3)
-      // fieldResolver: this.requestOptions.fieldResolver as GraphQLFieldResolver<
-      //   any,
-      //   any
-      // >,
-      // TODO(AS3)
-      // parseOptions: this.parseOptions,
-      // TODO(AS3): AGM
-      // reporting: !!this.engineReportingAgent,
-      // ...this.requestOptions,
-    };
-
-    // TODO(AS3) This is not where the global cache should be created.
-    // Especially since this is per request.
-    const cache = new InMemoryLRUCache();
-
-    const requestCtx: GraphQLRequestContext = {
-      request,
-      context,
-      cache,
-      response: responseInit,
-    };
-
-    return processGraphQLRequest(options, requestCtx);
+    })
   }
 }
