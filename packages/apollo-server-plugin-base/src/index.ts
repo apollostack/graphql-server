@@ -1,3 +1,4 @@
+import { GraphQLSchema } from 'graphql';
 import {
   GraphQLServiceContext,
   GraphQLRequestContext,
@@ -17,6 +18,7 @@ export {
 
 export interface ApolloServerPlugin {
   serverWillStart?(service: GraphQLServiceContext): ValueOrPromise<void>;
+  schemaDidChange?(schema: GraphQLSchema, schemaHash: string): void;
   requestDidStart?<TContext>(
     requestContext: GraphQLRequestContext<TContext>,
   ): GraphQLRequestListener<TContext> | void;

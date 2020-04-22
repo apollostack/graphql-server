@@ -384,12 +384,15 @@ export class ApolloServerBase {
       this.toDispose.add(
         // Store the unsubscribe handles, which are returned from
         // `onSchemaChange`, for later disposal when the server stops
-        gateway.onSchemaChange(
-          schema =>
-            (this.schemaDerivedData = Promise.resolve(
-              this.generateSchemaDerivedData(schema),
-            )),
-        ),
+        gateway.onSchemaChange(schema => {
+          const schemaDerivedData = this.generateSchemaDerivedData(schema);
+          this.schemaDerivedData = Promise.resolve(schemaDerivedData);
+          this.plugins.forEach(plugin => {
+            if (plugin.schemaDidChange) {
+              plugin.schemaDidChange(schema, schemaDerivedData.schemaHash);
+            }
+          });
+        }),
       );
 
       const graphVariant = getEngineGraphVariant(engine);

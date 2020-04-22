@@ -2512,19 +2512,19 @@ export function testApolloServer<AS extends ApolloServerBase>(
     });
 
     describe('Gateway', () => {
-      it('receives schema updates from the gateway', async () => {
-        const makeQueryTypeWithField = fieldName =>
-          new GraphQLSchema({
-            query: new GraphQLObjectType({
-              name: 'QueryType',
-              fields: {
-                [fieldName]: {
-                  type: GraphQLString,
-                },
+      const makeQueryTypeWithField = fieldName =>
+        new GraphQLSchema({
+          query: new GraphQLObjectType({
+            name: 'QueryType',
+            fields: {
+              [fieldName]: {
+                type: GraphQLString,
               },
-            }),
-          });
+            },
+          }),
+        });
 
+      it('receives schema updates from the gateway', async () => {
         const { gateway, triggers } = makeGatewayMock();
 
         const executor = req =>
@@ -2621,18 +2621,6 @@ export function testApolloServer<AS extends ApolloServerBase>(
       it('can serve multiple active schemas simultaneously during a schema rollover', async () => {
         const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-        const makeQueryTypeWithField = fieldName =>
-          new GraphQLSchema({
-            query: new GraphQLObjectType({
-              name: 'QueryType',
-              fields: {
-                [fieldName]: {
-                  type: GraphQLString,
-                },
-              },
-            }),
-          });
-
         const { gateway, triggers } = makeGatewayMock();
 
         const makeEventuallyResolvingPromise = val => {
@@ -2675,11 +2663,9 @@ export function testApolloServer<AS extends ApolloServerBase>(
         const result1 = apolloFetch({ query: '{testString1}' });
         await wait(100);
         triggers.triggerSchemaChange(makeQueryTypeWithField('testString2'));
-        await wait(100);
         const result2 = apolloFetch({ query: '{testString2}' });
         await wait(100);
         triggers.triggerSchemaChange(makeQueryTypeWithField('testString3'));
-        await wait(100);
         const result3 = apolloFetch({ query: '{testString3}' });
         await wait(100);
         r3();
@@ -2696,6 +2682,33 @@ export function testApolloServer<AS extends ApolloServerBase>(
           expect(v2.data).toEqual({ testString2: '2' });
           expect(v3.data).toEqual({ testString3: '3' });
         });
+      });
+
+      it("triggers a plugin's schemaDidChange on schema change", async () => {
+        const { gateway, triggers } = makeGatewayMock();
+
+        const oldSchema = makeQueryTypeWithField('testString1');
+        const newSchema = makeQueryTypeWithField('testString2');
+
+        triggers.resolveLoad({
+          schema: oldSchema,
+          executor: () => {},
+        });
+
+        const schemaDidChange = jest.fn();
+
+        await createApolloServer({
+          gateway,
+          subscriptions: false,
+          plugins: [{ schemaDidChange }],
+        });
+
+        triggers.triggerSchemaChange(newSchema);
+        expect(schemaDidChange).toBeCalledTimes(1);
+        expect(schemaDidChange).toBeCalledWith(
+          newSchema,
+          '0bf596dfcf8ef789e922280f4c4a51c453d335dc49d67c51caf4a0536c5fdcb5309ff530e76dc69eaea483d33ea9e343ec02e996cf51b61e026279607d95ba31',
+        );
       });
     });
   });
