@@ -38,6 +38,10 @@ export interface CreateHandlerOptions {
   onHealthCheck?: (req: APIGatewayProxyEvent) => Promise<any>;
 }
 
+export interface Response{
+  headers: { [name: string]: string };
+}
+
 export class FileUploadRequest extends Readable {
   headers!: IncomingHttpHeaders;
 }
@@ -122,7 +126,7 @@ export class ApolloServer extends ApolloServerBase {
     }
 
     return (
-      event: APIGatewayProxyEvent,
+      event: APIGatewayProxyEvent & {response: Response},
       context: LambdaContext,
       callback: APIGatewayProxyCallback,
     ) => {
@@ -238,6 +242,7 @@ export class ApolloServer extends ApolloServerBase {
 
       const response = new Writable() as ServerResponse;
       const callbackFilter: APIGatewayProxyCallback = (error, result) => {
+        const responseHeaders = event?.response?.headers || {}
         response.end();
         callback(
           error,
@@ -246,6 +251,7 @@ export class ApolloServer extends ApolloServerBase {
             headers: {
               ...result.headers,
               ...requestCorsHeadersObject,
+              ...responseHeaders
             },
           },
         );

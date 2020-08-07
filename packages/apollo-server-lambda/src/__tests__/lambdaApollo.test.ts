@@ -27,6 +27,9 @@ const createLambda = (options: CreateAppOptions = {}) => {
     }
 
     let body = '';
+    const headers: {[key: string]: string} =  {
+      "Set-Cookie": "new_cookie"
+    }
     req.on('data', chunk => (body += chunk));
     req.on('end', () => {
       const urlObject = url.parse(req.url || '', true);
@@ -39,6 +42,7 @@ const createLambda = (options: CreateAppOptions = {}) => {
           path: urlObject.pathname,
         },
         headers: req.headers,
+        response: {headers: headers}
       };
       const callback: APIGatewayProxyCallback = (error, result) => {
         if (error) {
@@ -55,6 +59,18 @@ const createLambda = (options: CreateAppOptions = {}) => {
               // Without casting this to `any`, TS still believes `boolean`
               // is possible.
               res.setHeader(key, result.headers[key] as any);
+            }
+          }
+        }
+
+        for (let key in event.response.headers) {
+          if (event.response.headers.hasOwnProperty(key)) {
+            if (typeof event.response.headers[key] === 'boolean') {
+              res.setHeader(key, event.response.headers[key].toString());
+            } else {
+              // Without casting this to `any`, TS still believes `boolean`
+              // is possible.
+              res.setHeader(key, event.response.headers[key] as any);
             }
           }
         }
