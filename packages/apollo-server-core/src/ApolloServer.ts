@@ -4,6 +4,7 @@ import {
   GraphQLParseOptions,
 } from 'graphql-tools';
 import { Server as HttpServer } from 'http';
+import * as url from 'url';
 import loglevel from 'loglevel';
 import {
   execute,
@@ -619,12 +620,73 @@ export class ApolloServerBase {
         );
       }
     }
+    const { path } = this.subscriptionServerOptions;
+
+    this.subscriptionServer = this.createSubscriptionServer(
+      server instanceof WebSocket.Server
+        ? server
+        : {
+            server,
+            path,
+          },
+    );
+  }
+
+  public static installMultiSubscriptionHandler(apolloServers: ApolloServerBase[], server: HttpServer) {
+    const subscriptionServers: [ApolloServerBase, SubscriptionServer][] = apolloServers.map(
+      aps => {
+        const ss = aps.createSubscriptionServer({ noServer: true });
+        aps.subscriptionServer = ss;
+        return [aps, ss];
+      }
+    );
+
+    server.on('upgrade', (request, socket, head) => {
+      const pathname = url.parse(request.url).pathname;
+
+      const handled = subscriptionServers.reduce((h, [aps, ss]) => {
+        if (h) {
+          return true;
+        }
+        if (pathname === aps.subscriptionsPath) {
+          ss.server.handleUpgrade(request, socket, head, (ws) => {
+            ss.server.emit('connection', ws, request);
+          });
+
+          return true;
+        }
+
+        return false;
+      }, false);
+
+      if (!handled) {
+        socket.destroy();
+      }
+    });
+  }
+
+  protected createSubscriptionServer(socketOptionsOrServer: WebSocket.ServerOptions | WebSocket.Server): SubscriptionServer {
+    if (!this.subscriptionServerOptions) {
+      if (this.config.gateway) {
+        throw Error(
+          'Subscriptions are not supported when operating as a gateway',
+        );
+      }
+      if (this.supportsSubscriptions()) {
+        throw Error(
+          'Subscriptions are disabled, due to subscriptions set to false in the ApolloServer constructor',
+        );
+      } else {
+        throw Error(
+          'Subscriptions are not supported, choose an integration, such as apollo-server-express that allows persistent connections',
+        );
+      }
+    }
     const { SubscriptionServer } = require('subscriptions-transport-ws');
     const {
       onDisconnect,
       onConnect,
       keepAlive,
-      path,
     } = this.subscriptionServerOptions;
 
     // TODO: This shouldn't use this.schema, as it is deprecated in favor of the schemaDerivedData promise.
@@ -634,7 +696,7 @@ export class ApolloServerBase {
         'Schema undefined during creation of subscription server.',
       );
 
-    this.subscriptionServer = SubscriptionServer.create(
+    return SubscriptionServer.create(
       {
         schema,
         execute,
@@ -678,12 +740,7 @@ export class ApolloServerBase {
         keepAlive,
         validationRules: this.requestOptions.validationRules
       },
-      server instanceof WebSocket.Server
-        ? server
-        : {
-            server,
-            path,
-          },
+      socketOptionsOrServer,
     );
   }
 
