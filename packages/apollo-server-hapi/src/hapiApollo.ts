@@ -1,5 +1,11 @@
 import Boom from 'boom';
-import { Server, Request, RouteOptions } from 'hapi';
+import {
+  Server,
+  Request,
+  RouteOptions,
+  ResponseToolkit,
+  Plugin as IPlugin
+} from 'hapi__hapi';
 import {
   GraphQLOptions,
   runHttpQuery,
@@ -11,14 +17,8 @@ export interface IRegister {
   (server: Server, options: any, next?: Function): void;
 }
 
-export interface IPlugin {
-  name: string;
-  version?: string;
-  register: IRegister;
-}
-
 export interface HapiOptionsFunction {
-  (request?: Request): ValueOrPromise<GraphQLOptions>;
+  (request: Request, h: ResponseToolkit): ValueOrPromise<GraphQLOptions>;
 }
 
 export interface HapiPluginOptions {
@@ -28,9 +28,9 @@ export interface HapiPluginOptions {
   graphqlOptions: GraphQLOptions | HapiOptionsFunction;
 }
 
-const graphqlHapi: IPlugin = {
+const plugin: IPlugin<HapiPluginOptions> = {
   name: 'graphql',
-  register: (server: Server, options: HapiPluginOptions, next?: Function) => {
+  register: (server, options, next?) => {
     if (!options || !options.graphqlOptions) {
       throw new Error('Apollo Server requires options.');
     }
@@ -91,4 +91,6 @@ const graphqlHapi: IPlugin = {
   },
 };
 
-export { graphqlHapi };
+export {
+  plugin
+};

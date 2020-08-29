@@ -61,6 +61,7 @@
     "graphql-extensions": "file:packages/graphql-extensions"
   },
   "devDependencies": {
+    "@hapi/hapi": "^19.1.1",
     "@types/async-retry": "1.4.2",
     "@types/aws-lambda": "8.10.61",
     "@types/body-parser": "1.19.0",
@@ -69,7 +70,7 @@
     "@types/cors": "2.8.7",
     "@types/express": "4.17.7",
     "@types/fast-json-stable-stringify": "2.0.0",
-    "@types/hapi": "17.8.8",
+    "@types/hapi__hapi": "^19.0.3",
     "@types/ioredis": "4.17.2",
     "@types/jest": "25.2.3",
     "@types/koa-router": "7.4.1",
@@ -109,7 +110,6 @@
     "graphql-subscriptions": "1.1.0",
     "graphql-tag": "2.10.4",
     "graphql-tools": "4.0.8",
-    "hapi": "17.8.5",
     "ioredis": "4.17.3",
     "jest": "25.5.4",
     "jest-config": "25.5.4",
