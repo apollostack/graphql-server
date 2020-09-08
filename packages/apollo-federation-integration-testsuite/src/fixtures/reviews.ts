@@ -46,6 +46,24 @@ export const typeDefs = gql`
     reviews: [Review]
   }
 
+  extend type IndoorFootball implements Product @key(fields: "upc") {
+    upc: String! @external
+    reviews: [Review]
+  }
+  extend type OutdoorFootball implements Product @key(fields: "upc") {
+    upc: String! @external
+    reviews: [Review]
+  }
+
+  extend type NightFootball implements Product @key(fields: "upc") {
+    upc: String! @external
+    reviews: [Review]
+  }
+  extend type VisuallyImpairedFootball implements Product @key(fields: "upc") {
+    upc: String! @external
+    reviews: [Review]
+  }
+
   extend type Book implements Product @key(fields: "isbn") {
     isbn: String! @external
     reviews: [Review]

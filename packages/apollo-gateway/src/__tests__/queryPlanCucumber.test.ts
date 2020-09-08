@@ -16,6 +16,11 @@ const features = [
   buildQueryPlanFeature
 ];
 
+const fs = require('fs')
+
+
+var file = fs.createWriteStream('/Users/jemrayfield/cukes.txt');
+
 features.forEach((feature) => {
   defineFeature(feature, (test) => {
     feature.scenarios.forEach((scenario) => {
@@ -49,9 +54,12 @@ features.forEach((feature) => {
               options
             );
 
+            // write out the query plan..
+            file.write(JSON.stringify(queryPlan))
+
             const parsedExpectedPlan = JSON.parse(expectedQueryPlan);
 
-            expect(queryPlan).toEqual(parsedExpectedPlan);
+            expect(JSON.parse(JSON.stringify(queryPlan))).toEqual(parsedExpectedPlan);
           })
         }
 
@@ -67,4 +75,9 @@ features.forEach((feature) => {
       });
     });
   });
-});
+})
+
+
+
+
+

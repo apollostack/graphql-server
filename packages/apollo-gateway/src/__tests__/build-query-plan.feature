@@ -26,7 +26,104 @@ Scenario: should not confuse union types with overlapping field names
       "node": {
         "kind": "Fetch",
         "serviceName": "documents",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "body"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Image"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "attributes"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "url"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Text"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "attributes"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "bold"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "text"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{body{__typename ...on Image{attributes{url}}...on Text{attributes{bold text}}}}"
       }
     }
@@ -48,7 +145,36 @@ Scenario: should use a single fetch when requesting a root field from one servic
       "node": {
         "kind": "Fetch",
         "serviceName": "accounts",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "me"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "name"
+                },
+                "arguments": [],
+                "directives": [],
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": []
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{me{name}}"
       }
     }
@@ -72,67 +198,356 @@ Scenario: should use two independent fetches when requesting root fields from tw
       "kind": "QueryPlan",
       "node": {
         "kind": "Parallel",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "accounts",
-            "variableUsages": [],
-            "operation": "{me{name}}"
-          },
-          {
-            "kind": "Sequence",
-            "nodes": [
-              {
-                "kind": "Fetch",
-                "serviceName": "product",
-                "variableUsages": [],
-                "operation": "{topProducts{__typename ...on Book{__typename isbn}...on Furniture{name}}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "accounts",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "me"
               },
-              {
-                "kind": "Flatten",
-                "path": ["topProducts", "@"],
-                "node": {
-                  "kind": "Fetch",
-                  "serviceName": "books",
-                  "requires": [
-                    {
-                      "kind": "InlineFragment",
-                      "typeCondition": "Book",
-                      "selections": [
-                        { "kind": "Field", "name": "__typename" },
-                        { "kind": "Field", "name": "isbn" }
-                      ]
-                    }
-                  ],
-                  "variableUsages": [],
-                  "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
-                }
-              },
-              {
-                "kind": "Flatten",
-                "path": ["topProducts", "@"],
-                "node": {
-                  "kind": "Fetch",
-                  "serviceName": "product",
-                  "requires": [
-                    {
-                      "kind": "InlineFragment",
-                      "typeCondition": "Book",
-                      "selections": [
-                        { "kind": "Field", "name": "__typename" },
-                        { "kind": "Field", "name": "isbn" },
-                        { "kind": "Field", "name": "title" },
-                        { "kind": "Field", "name": "year" }
-                      ]
-                    }
-                  ],
-                  "variableUsages": [],
-                  "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
-                }
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "name"
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": []
+                  }
+                }]
               }
-            ]
-          }
-        ]
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{me{name}}"
+        }, {
+          "kind": "Sequence",
+          "nodes": [{
+            "kind": "Fetch",
+            "serviceName": "product",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "topProducts"
+                },
+                "arguments": [],
+                "directives": [],
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "__typename"
+                    }
+                  }, {
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "isbn",
+                          "loc": {
+                            "start": 8,
+                            "end": 12
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      }]
+                    }
+                  }, {
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "OutdoorFootball"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }, {
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "IndoorFootball"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }, {
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Furniture"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }, {
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "NightFootball"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }, {
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "VisuallyImpairedFootball"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "operation": "{topProducts{__typename ...on Book{__typename isbn}...on OutdoorFootball{name}...on IndoorFootball{name}...on Furniture{name}...on NightFootball{name}...on VisuallyImpairedFootball{name}}}"
+          }, {
+            "kind": "Flatten",
+            "path": ["topProducts", "@"],
+            "node": {
+              "kind": "Fetch",
+              "serviceName": "books",
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "isbn",
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 12
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "title",
+                        "loc": {
+                          "start": 8,
+                          "end": 13
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 13
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "year",
+                        "loc": {
+                          "start": 14,
+                          "end": 18
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 14,
+                        "end": 18
+                      }
+                    }]
+                  }
+                }]
+              },
+              "variableUsages": {},
+              "internalFragments": {},
+              "requires": [{
+                "kind": "InlineFragment",
+                "typeCondition": "Book",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "isbn"
+                }]
+              }],
+              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+            }
+          }, {
+            "kind": "Flatten",
+            "path": ["topProducts", "@"],
+            "node": {
+              "kind": "Fetch",
+              "serviceName": "product",
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }]
+              },
+              "variableUsages": {},
+              "internalFragments": {},
+              "requires": [{
+                "kind": "InlineFragment",
+                "typeCondition": "Book",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "isbn"
+                }, {
+                  "kind": "Field",
+                  "name": "title"
+                }, {
+                  "kind": "Field",
+                  "name": "year"
+                }]
+              }],
+              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
+            }
+          }]
+        }]
       }
     }
     """
@@ -155,113 +570,641 @@ Scenario: should use a single fetch when requesting multiple root fields from th
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "variableUsages": [],
-            "operation": "{topProducts{__typename ...on Book{__typename isbn}...on Furniture{name}}product(upc:\"1\"){__typename ...on Book{__typename isbn}...on Furniture{name}}}"
-          },
-          {
-            "kind": "Parallel",
-            "nodes": [
-              {
-                "kind": "Sequence",
-                "nodes": [
-                  {
-                    "kind": "Flatten",
-                    "path": ["topProducts", "@"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "books",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" }
-                          ]
-                        }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
-                    }
-                  },
-                  {
-                    "kind": "Flatten",
-                    "path": ["topProducts", "@"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "product",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" },
-                            { "kind": "Field", "name": "title" },
-                            { "kind": "Field", "name": "year" }
-                          ]
-                        }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
-                    }
-                  }
-                ]
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topProducts"
               },
-              {
-                "kind": "Sequence",
-                "nodes": [
-                  {
-                    "kind": "Flatten",
-                    "path": ["product"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "books",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" }
-                          ]
-                        }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
                     }
                   },
-                  {
-                    "kind": "Flatten",
-                    "path": ["product"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "product",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" },
-                            { "kind": "Field", "name": "title" },
-                            { "kind": "Field", "name": "year" }
-                          ]
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "isbn",
+                        "loc": {
+                          "start": 8,
+                          "end": 12
                         }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
-                    }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 12
+                      }
+                    }]
                   }
-                ]
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "OutdoorFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "IndoorFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Furniture"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "NightFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "VisuallyImpairedFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }]
               }
-            ]
-          }
-        ]
+            }, {
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "product"
+              },
+              "arguments": [{
+                "kind": "Argument",
+                "name": {
+                  "kind": "Name",
+                  "value": "upc"
+                },
+                "value": {
+                  "kind": "StringValue",
+                  "value": "1",
+                  "block": false
+                }
+              }],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "isbn",
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 12
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "OutdoorFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "IndoorFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Furniture"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "NightFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "VisuallyImpairedFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }]
+                  }
+                }]
+              }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topProducts{__typename ...on Book{__typename isbn}...on OutdoorFootball{name}...on IndoorFootball{name}...on Furniture{name}...on NightFootball{name}...on VisuallyImpairedFootball{name}}product(upc:\"1\"){__typename ...on Book{__typename isbn}...on OutdoorFootball{name}...on IndoorFootball{name}...on Furniture{name}...on NightFootball{name}...on VisuallyImpairedFootball{name}}}"
+        }, {
+          "kind": "Parallel",
+          "nodes": [{
+            "kind": "Sequence",
+            "nodes": [{
+              "kind": "Flatten",
+              "path": ["topProducts", "@"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "books",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "isbn",
+                          "loc": {
+                            "start": 8,
+                            "end": 12
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "title",
+                          "loc": {
+                            "start": 8,
+                            "end": 13
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 13
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "year",
+                          "loc": {
+                            "start": 14,
+                            "end": 18
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 14,
+                          "end": 18
+                        }
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+              }
+            }, {
+              "kind": "Flatten",
+              "path": ["topProducts", "@"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "product",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }, {
+                    "kind": "Field",
+                    "name": "title"
+                  }, {
+                    "kind": "Field",
+                    "name": "year"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
+              }
+            }]
+          }, {
+            "kind": "Sequence",
+            "nodes": [{
+              "kind": "Flatten",
+              "path": ["product"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "books",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "isbn",
+                          "loc": {
+                            "start": 8,
+                            "end": 12
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "title",
+                          "loc": {
+                            "start": 8,
+                            "end": 13
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 13
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "year",
+                          "loc": {
+                            "start": 14,
+                            "end": 18
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 14,
+                          "end": 18
+                        }
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+              }
+            }, {
+              "kind": "Flatten",
+              "path": ["product"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "product",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }, {
+                    "kind": "Field",
+                    "name": "title"
+                  }, {
+                    "kind": "Field",
+                    "name": "year"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
+              }
+            }]
+          }]
+        }]
       }
     }
     """
@@ -287,7 +1230,64 @@ Scenario: should use a single fetch when requesting relationship subfields from 
       "node": {
         "kind": "Fetch",
         "serviceName": "reviews",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "topReviews"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "body"
+                },
+                "arguments": [],
+                "directives": []
+              }, {
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "author"
+                },
+                "arguments": [],
+                "directives": [],
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{topReviews{body author{reviews{body}}}}"
       }
     }
@@ -315,7 +1315,72 @@ Scenario: should use a single fetch when requesting relationship subfields and p
       "node": {
         "kind": "Fetch",
         "serviceName": "reviews",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "topReviews"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "body"
+                },
+                "arguments": [],
+                "directives": []
+              }, {
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "author"
+                },
+                "arguments": [],
+                "directives": [],
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "id"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }, {
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{topReviews{body author{id reviews{body}}}}"
       }
     }
@@ -339,34 +1404,121 @@ Scenario: when requesting an extension field from another service, it should add
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "accounts",
-            "variableUsages": [],
-            "operation": "{me{name __typename id}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "accounts",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "me"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "name"
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": []
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "id",
+                    "loc": {
+                      "start": 8,
+                      "end": 10
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 10
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["me"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "reviews",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "User",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{me{name __typename id}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["me"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "reviews",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "User"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{body}}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "User",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{body}}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -388,34 +1540,109 @@ Scenario: when requesting an extension field from another service, when the pare
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "accounts",
-            "variableUsages": [],
-            "operation": "{me{__typename id}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "accounts",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "me"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "id",
+                    "loc": {
+                      "start": 8,
+                      "end": 10
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 10
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["me"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "reviews",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "User",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{me{__typename id}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["me"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "reviews",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "User"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{body}}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "User",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{body}}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -438,34 +1665,117 @@ Scenario: when requesting an extension field from another service, should only a
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "accounts",
-            "variableUsages": [],
-            "operation": "{me{__typename id}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "accounts",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "me"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "id",
+                    "loc": {
+                      "start": 8,
+                      "end": 10
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 10
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["me"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "reviews",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "User",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{me{__typename id}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["me"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "reviews",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "User"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }, {
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "numberOfReviews"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{body}numberOfReviews}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "User",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{body}numberOfReviews}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -488,34 +1798,121 @@ Scenario: when requesting a composite field with subfields from another service,
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "variableUsages": [],
-            "operation": "{topReviews{body author{__typename id}}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "reviews",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topReviews"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "body"
+                  },
+                  "arguments": [],
+                  "directives": []
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "author"
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "id",
+                        "loc": {
+                          "start": 8,
+                          "end": 10
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 10
+                      }
+                    }]
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["topReviews", "@", "author"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "accounts",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "User",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topReviews{body author{__typename id}}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["topReviews", "@", "author"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "accounts",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "User"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "name"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": []
+                    }
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{name}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "User",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{name}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -535,35 +1932,116 @@ Scenario: when requesting a composite field with subfields from another service,
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "variableUsages": [],
-            "operation": "{topCars{__typename id price}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topCars"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "id",
+                    "loc": {
+                      "start": 8,
+                      "end": 10
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 10
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "price",
+                    "loc": {
+                      "start": 8,
+                      "end": 13
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 13
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["topCars", "@"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "reviews",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "Car",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" },
-                    { "kind": "Field", "name": "price" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topCars{__typename id price}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["topCars", "@"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "reviews",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Car"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "retailPrice"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Car{retailPrice}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "Car",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }, {
+                "kind": "Field",
+                "name": "price"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Car{retailPrice}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -585,34 +2063,113 @@ Scenario: when requesting a composite field with subfields from another service,
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "variableUsages": [],
-            "operation": "{topReviews{author{__typename id}}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "reviews",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topReviews"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "author"
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "id",
+                        "loc": {
+                          "start": 8,
+                          "end": 10
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 10
+                      }
+                    }]
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["topReviews", "@", "author"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "accounts",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "User",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topReviews{author{__typename id}}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["topReviews", "@", "author"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "accounts",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "User"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "name"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": []
+                    }
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{name}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "User",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{name}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -634,34 +2191,109 @@ Scenario: when requesting a relationship field with extension subfields from a d
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "variableUsages": [],
-            "operation": "{topReviews{author{__typename id}}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "reviews",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topReviews"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "author"
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "id",
+                        "loc": {
+                          "start": 8,
+                          "end": 10
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 10
+                      }
+                    }]
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["topReviews", "@", "author"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "accounts",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "User",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "id" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topReviews{author{__typename id}}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["topReviews", "@", "author"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "accounts",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "User"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "birthDate"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{birthDate}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "User",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "id"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{birthDate}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -682,8 +2314,157 @@ Scenario: for abstract types, it should add __typename when fetching objects of 
       "node": {
         "kind": "Fetch",
         "serviceName": "product",
-        "variableUsages": [],
-        "operation": "{topProducts{__typename ...on Book{price}...on Furniture{price}}}"
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "topProducts"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Book"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "price"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "OutdoorFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "price"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "IndoorFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "price"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Furniture"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "price"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "NightFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "price"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "VisuallyImpairedFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "price"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
+        "operation": "{topProducts{__typename ...on Book{price}...on OutdoorFootball{price}...on IndoorFootball{price}...on Furniture{price}...on NightFootball{price}...on VisuallyImpairedFootball{price}}}"
       }
     }
     """
@@ -706,42 +2487,566 @@ Scenario: should break up when traversing an extension field on an interface typ
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "variableUsages": [],
-            "operation": "{topProducts{__typename ...on Book{price __typename isbn}...on Furniture{price __typename upc}}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topProducts"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "isbn",
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 12
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "OutdoorFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "upc",
+                        "loc": {
+                          "start": 8,
+                          "end": 11
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "IndoorFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "upc",
+                        "loc": {
+                          "start": 8,
+                          "end": 11
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Furniture"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "upc",
+                        "loc": {
+                          "start": 8,
+                          "end": 11
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "NightFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "upc",
+                        "loc": {
+                          "start": 8,
+                          "end": 11
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "VisuallyImpairedFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                      }
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "upc",
+                        "loc": {
+                          "start": 8,
+                          "end": 11
+                        }
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    }]
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["topProducts", "@"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "reviews",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "Book",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "isbn" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topProducts{__typename ...on Book{price __typename isbn}...on OutdoorFootball{price __typename upc}...on IndoorFootball{price __typename upc}...on Furniture{price __typename upc}...on NightFootball{price __typename upc}...on VisuallyImpairedFootball{price __typename upc}}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["topProducts", "@"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "reviews",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Book"
+                  }
                 },
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "Furniture",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "upc" }
-                  ]
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{reviews{body}}...on Furniture{reviews{body}}}}"
-            }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "OutdoorFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "IndoorFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Furniture"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "NightFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "VisuallyImpairedFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "reviews"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "body"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "Book",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "isbn"
+              }]
+            }, {
+              "kind": "InlineFragment",
+              "typeCondition": "OutdoorFootball",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "upc"
+              }]
+            }, {
+              "kind": "InlineFragment",
+              "typeCondition": "IndoorFootball",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "upc"
+              }]
+            }, {
+              "kind": "InlineFragment",
+              "typeCondition": "Furniture",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "upc"
+              }]
+            }, {
+              "kind": "InlineFragment",
+              "typeCondition": "NightFootball",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "upc"
+              }]
+            }, {
+              "kind": "InlineFragment",
+              "typeCondition": "VisuallyImpairedFootball",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "upc"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{reviews{body}}...on OutdoorFootball{reviews{body}}...on IndoorFootball{reviews{body}}...on Furniture{reviews{body}}...on NightFootball{reviews{body}}...on VisuallyImpairedFootball{reviews{body}}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -766,36 +3071,135 @@ Scenario: interface fragments should expand into possible types only
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "books",
-            "variableUsages": [],
-            "operation": "{books{__typename isbn title year}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "books",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "books"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__typename"
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "isbn",
+                    "loc": {
+                      "start": 8,
+                      "end": 12
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 12
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "title",
+                    "loc": {
+                      "start": 8,
+                      "end": 13
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 8,
+                    "end": 13
+                  }
+                }, {
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "year",
+                    "loc": {
+                      "start": 14,
+                      "end": 18
+                    }
+                  },
+                  "arguments": [],
+                  "directives": [],
+                  "loc": {
+                    "start": 14,
+                    "end": 18
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Flatten",
-            "path": ["books", "@"],
-            "node": {
-              "kind": "Fetch",
-              "serviceName": "product",
-              "requires": [
-                {
-                  "kind": "InlineFragment",
-                  "typeCondition": "Book",
-                  "selections": [
-                    { "kind": "Field", "name": "__typename" },
-                    { "kind": "Field", "name": "isbn" },
-                    { "kind": "Field", "name": "title" },
-                    { "kind": "Field", "name": "year" }
-                  ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{books{__typename isbn title year}}"
+        }, {
+          "kind": "Flatten",
+          "path": ["books", "@"],
+          "node": {
+            "kind": "Fetch",
+            "serviceName": "product",
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Book"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "name"
+                    },
+                    "arguments": [],
+                    "directives": []
+                  }]
                 }
-              ],
-              "variableUsages": [],
-              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
-            }
+              }]
+            },
+            "variableUsages": {},
+            "internalFragments": {},
+            "requires": [{
+              "kind": "InlineFragment",
+              "typeCondition": "Book",
+              "selections": [{
+                "kind": "Field",
+                "name": "__typename"
+              }, {
+                "kind": "Field",
+                "name": "isbn"
+              }, {
+                "kind": "Field",
+                "name": "title"
+              }, {
+                "kind": "Field",
+                "name": "year"
+              }]
+            }],
+            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
           }
-        ]
+        }]
       }
     }
     """
@@ -818,8 +3222,264 @@ Scenario: interface inside interface should expand into possible types only
       "node": {
         "kind": "Fetch",
         "serviceName": "product",
-        "variableUsages": [],
-        "operation": "{product(upc:\"\"){__typename ...on Book{details{country}}...on Furniture{details{country}}}}"
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "product"
+            },
+            "arguments": [{
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "upc"
+              },
+              "value": {
+                "kind": "StringValue",
+                "value": "",
+                "block": false
+              }
+            }],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Book"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "details"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "country"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "OutdoorFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "details"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "country"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "IndoorFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "details"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "country"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Furniture"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "details"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "country"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "NightFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "details"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "country"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "VisuallyImpairedFootball"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "details"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "country"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
+        "operation": "{product(upc:\"\"){__typename ...on Book{details{country}}...on OutdoorFootball{details{__typename country}}...on IndoorFootball{details{__typename country}}...on Furniture{details{country}}...on NightFootball{details{__typename country}}...on VisuallyImpairedFootball{details{__typename country}}}}"
       }
     }
     """
@@ -848,94 +3508,570 @@ Scenario: experimental compression to downstream services should generate fragme
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "variableUsages": [],
-            "operation": "{topReviews{...__QueryPlanFragment_1__}}fragment __QueryPlanFragment_1__ on Review{body author product{...__QueryPlanFragment_0__}}fragment __QueryPlanFragment_0__ on Product{__typename ...on Book{__typename isbn}...on Furniture{__typename upc}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "reviews",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "topReviews"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "FragmentSpread",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__QueryPlanFragment_1__"
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Parallel",
-            "nodes": [
-              {
-                "kind": "Sequence",
-                "nodes": [
-                  {
-                    "kind": "Flatten",
-                    "path": ["topReviews", "@", "product"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "books",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" }
-                          ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{topReviews{...__QueryPlanFragment_1__}}fragment __QueryPlanFragment_1__ on Review{body author product{...__QueryPlanFragment_0__}}fragment __QueryPlanFragment_0__ on Product{__typename ...on Book{__typename isbn}...on OutdoorFootball{__typename upc}...on IndoorFootball{__typename upc}...on Furniture{__typename upc}...on NightFootball{__typename upc}...on VisuallyImpairedFootball{__typename upc}}"
+        }, {
+          "kind": "Parallel",
+          "nodes": [{
+            "kind": "Sequence",
+            "nodes": [{
+              "kind": "Flatten",
+              "path": ["topReviews", "@", "product"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "books",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
                         }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "isbn",
+                          "loc": {
+                            "start": 8,
+                            "end": 12
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "title",
+                          "loc": {
+                            "start": 8,
+                            "end": 13
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 13
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "year",
+                          "loc": {
+                            "start": 14,
+                            "end": 18
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 14,
+                          "end": 18
+                        }
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+              }
+            }, {
+              "kind": "Flatten",
+              "path": ["topReviews", "@", "product"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "product",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }, {
+                    "kind": "Field",
+                    "name": "title"
+                  }, {
+                    "kind": "Field",
+                    "name": "year"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
+              }
+            }]
+          }, {
+            "kind": "Flatten",
+            "path": ["topReviews", "@", "product"],
+            "node": {
+              "kind": "Fetch",
+              "serviceName": "product",
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "OutdoorFootball"
                     }
                   },
-                  {
-                    "kind": "Flatten",
-                    "path": ["topReviews", "@", "product"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "product",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" },
-                            { "kind": "Field", "name": "title" },
-                            { "kind": "Field", "name": "year" }
-                          ]
-                        }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
-                    }
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
                   }
-                ]
-              },
-              {
-                "kind": "Flatten",
-                "path": ["topReviews", "@", "product"],
-                "node": {
-                  "kind": "Fetch",
-                  "serviceName": "product",
-                  "requires": [
-                    {
-                      "kind": "InlineFragment",
-                      "typeCondition": "Furniture",
-                      "selections": [
-                        { "kind": "Field", "name": "__typename" },
-                        { "kind": "Field", "name": "upc" }
-                      ]
-                    },
-                    {
-                      "kind": "InlineFragment",
-                      "typeCondition": "Book",
-                      "selections": [
-                        { "kind": "Field", "name": "__typename" },
-                        { "kind": "Field", "name": "isbn" }
-                      ]
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "IndoorFootball"
                     }
-                  ],
-                  "variableUsages": [],
-                  "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Furniture{name price details{country}}...on Book{price details{country}}}}"
-                }
-              }
-            ]
-          }
-        ]
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Furniture"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "NightFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "VisuallyImpairedFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }]
+              },
+              "variableUsages": {},
+              "internalFragments": {},
+              "requires": [{
+                "kind": "InlineFragment",
+                "typeCondition": "OutdoorFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "IndoorFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "Furniture",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "NightFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "VisuallyImpairedFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "Book",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "isbn"
+                }]
+              }],
+              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on OutdoorFootball{name price details{__typename country}}...on IndoorFootball{name price details{__typename country}}...on Furniture{name price details{country}}...on NightFootball{name price details{__typename country}}...on VisuallyImpairedFootball{name price details{__typename country}}...on Book{price details{country}}}}"
+            }
+          }]
+        }]
       }
     }
     """
@@ -958,7 +4094,44 @@ Scenario: experimental compression to downstream services shouldn't generate fra
       "node": {
         "kind": "Fetch",
         "serviceName": "reviews",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "topReviews"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "body"
+                },
+                "arguments": [],
+                "directives": []
+              }, {
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "author"
+                },
+                "arguments": [],
+                "directives": [],
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": []
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{topReviews{body author}}"
       }
     }
@@ -983,7 +4156,30 @@ Scenario: experimental compression to downstream services should generate fragme
       "node": {
         "kind": "Fetch",
         "serviceName": "reviews",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "topReviews"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "FragmentSpread",
+                "name": {
+                  "kind": "Name",
+                  "value": "__QueryPlanFragment_0__"
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{topReviews{...__QueryPlanFragment_0__}}fragment __QueryPlanFragment_0__ on Review{id body author}"
       }
     }
@@ -1013,94 +4209,622 @@ Scenario: experimental compression to downstream services should generate fragme
       "kind": "QueryPlan",
       "node": {
         "kind": "Sequence",
-        "nodes": [
-          {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "variableUsages": [],
-            "operation": "{reviews:topReviews{...__QueryPlanFragment_1__}}fragment __QueryPlanFragment_1__ on Review{content:body author product{...__QueryPlanFragment_0__}}fragment __QueryPlanFragment_0__ on Product{__typename ...on Book{__typename isbn}...on Furniture{__typename upc}}"
+        "nodes": [{
+          "kind": "Fetch",
+          "serviceName": "reviews",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "alias": {
+                "kind": "Name",
+                "value": "reviews"
+              },
+              "name": {
+                "kind": "Name",
+                "value": "topReviews"
+              },
+              "arguments": [],
+              "directives": [],
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "FragmentSpread",
+                  "name": {
+                    "kind": "Name",
+                    "value": "__QueryPlanFragment_1__"
+                  }
+                }]
+              }
+            }]
           },
-          {
-            "kind": "Parallel",
-            "nodes": [
-              {
-                "kind": "Sequence",
-                "nodes": [
-                  {
-                    "kind": "Flatten",
-                    "path": ["reviews", "@", "product"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "books",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" }
-                          ]
+          "variableUsages": {},
+          "internalFragments": {},
+          "operation": "{reviews:topReviews{...__QueryPlanFragment_1__}}fragment __QueryPlanFragment_1__ on Review{content:body author product{...__QueryPlanFragment_0__}}fragment __QueryPlanFragment_0__ on Product{__typename ...on Book{__typename isbn}...on OutdoorFootball{__typename upc}...on IndoorFootball{__typename upc}...on Furniture{__typename upc}...on NightFootball{__typename upc}...on VisuallyImpairedFootball{__typename upc}}"
+        }, {
+          "kind": "Parallel",
+          "nodes": [{
+            "kind": "Sequence",
+            "nodes": [{
+              "kind": "Flatten",
+              "path": ["reviews", "@", "product"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "books",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "__typename"
                         }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "isbn",
+                          "loc": {
+                            "start": 8,
+                            "end": 12
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 12
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "title",
+                          "loc": {
+                            "start": 8,
+                            "end": 13
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 8,
+                          "end": 13
+                        }
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "year",
+                          "loc": {
+                            "start": 14,
+                            "end": 18
+                          }
+                        },
+                        "arguments": [],
+                        "directives": [],
+                        "loc": {
+                          "start": 14,
+                          "end": 18
+                        }
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{__typename isbn title year}}}"
+              }
+            }, {
+              "kind": "Flatten",
+              "path": ["reviews", "@", "product"],
+              "node": {
+                "kind": "Fetch",
+                "serviceName": "product",
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "InlineFragment",
+                    "typeCondition": {
+                      "kind": "NamedType",
+                      "name": {
+                        "kind": "Name",
+                        "value": "Book"
+                      }
+                    },
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "name"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                },
+                "variableUsages": {},
+                "internalFragments": {},
+                "requires": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": "Book",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": "__typename"
+                  }, {
+                    "kind": "Field",
+                    "name": "isbn"
+                  }, {
+                    "kind": "Field",
+                    "name": "title"
+                  }, {
+                    "kind": "Field",
+                    "name": "year"
+                  }]
+                }],
+                "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
+              }
+            }]
+          }, {
+            "kind": "Flatten",
+            "path": ["reviews", "@", "product"],
+            "node": {
+              "kind": "Fetch",
+              "serviceName": "product",
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "OutdoorFootball"
                     }
                   },
-                  {
-                    "kind": "Flatten",
-                    "path": ["reviews", "@", "product"],
-                    "node": {
-                      "kind": "Fetch",
-                      "serviceName": "product",
-                      "requires": [
-                        {
-                          "kind": "InlineFragment",
-                          "typeCondition": "Book",
-                          "selections": [
-                            { "kind": "Field", "name": "__typename" },
-                            { "kind": "Field", "name": "isbn" },
-                            { "kind": "Field", "name": "title" },
-                            { "kind": "Field", "name": "year" }
-                          ]
-                        }
-                      ],
-                      "variableUsages": [],
-                      "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{name}}}"
-                    }
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "alias": {
+                        "kind": "Name",
+                        "value": "cost"
+                      },
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "alias": {
+                            "kind": "Name",
+                            "value": "origin"
+                          },
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
                   }
-                ]
-              },
-              {
-                "kind": "Flatten",
-                "path": ["reviews", "@", "product"],
-                "node": {
-                  "kind": "Fetch",
-                  "serviceName": "product",
-                  "requires": [
-                    {
-                      "kind": "InlineFragment",
-                      "typeCondition": "Furniture",
-                      "selections": [
-                        { "kind": "Field", "name": "__typename" },
-                        { "kind": "Field", "name": "upc" }
-                      ]
-                    },
-                    {
-                      "kind": "InlineFragment",
-                      "typeCondition": "Book",
-                      "selections": [
-                        { "kind": "Field", "name": "__typename" },
-                        { "kind": "Field", "name": "isbn" }
-                      ]
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "IndoorFootball"
                     }
-                  ],
-                  "variableUsages": [],
-                  "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Furniture{name cost:price details{origin:country}}...on Book{cost:price details{origin:country}}}}"
-                }
-              }
-            ]
-          }
-        ]
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "alias": {
+                        "kind": "Name",
+                        "value": "cost"
+                      },
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "alias": {
+                            "kind": "Name",
+                            "value": "origin"
+                          },
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Furniture"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "alias": {
+                        "kind": "Name",
+                        "value": "cost"
+                      },
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "alias": {
+                            "kind": "Name",
+                            "value": "origin"
+                          },
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "NightFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "alias": {
+                        "kind": "Name",
+                        "value": "cost"
+                      },
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "alias": {
+                            "kind": "Name",
+                            "value": "origin"
+                          },
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "VisuallyImpairedFootball"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "name"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "alias": {
+                        "kind": "Name",
+                        "value": "cost"
+                      },
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "Field",
+                          "alias": {
+                            "kind": "Name",
+                            "value": "origin"
+                          },
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }, {
+                  "kind": "InlineFragment",
+                  "typeCondition": {
+                    "kind": "NamedType",
+                    "name": {
+                      "kind": "Name",
+                      "value": "Book"
+                    }
+                  },
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "alias": {
+                        "kind": "Name",
+                        "value": "cost"
+                      },
+                      "name": {
+                        "kind": "Name",
+                        "value": "price"
+                      },
+                      "arguments": [],
+                      "directives": []
+                    }, {
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "details"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "alias": {
+                            "kind": "Name",
+                            "value": "origin"
+                          },
+                          "name": {
+                            "kind": "Name",
+                            "value": "country"
+                          },
+                          "arguments": [],
+                          "directives": []
+                        }]
+                      }
+                    }]
+                  }
+                }]
+              },
+              "variableUsages": {},
+              "internalFragments": {},
+              "requires": [{
+                "kind": "InlineFragment",
+                "typeCondition": "OutdoorFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "IndoorFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "Furniture",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "NightFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "VisuallyImpairedFootball",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "upc"
+                }]
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": "Book",
+                "selections": [{
+                  "kind": "Field",
+                  "name": "__typename"
+                }, {
+                  "kind": "Field",
+                  "name": "isbn"
+                }]
+              }],
+              "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on OutdoorFootball{name cost:price details{__typename origin:country}}...on IndoorFootball{name cost:price details{__typename origin:country}}...on Furniture{name cost:price details{origin:country}}...on NightFootball{name cost:price details{__typename origin:country}}...on VisuallyImpairedFootball{name cost:price details{__typename origin:country}}...on Book{cost:price details{origin:country}}}}"
+            }
+          }]
+        }]
       }
     }
     """
@@ -1140,7 +4864,96 @@ Scenario: should properly expand nested unions with inline fragments
       "node": {
         "kind": "Fetch",
         "serviceName": "documents",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "body"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Image"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "attributes"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "url"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Text"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "attributes"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "bold"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{body{__typename ...on Image{attributes{url}}...on Text{attributes{bold}}}}"
       }
     }
@@ -1182,7 +4995,71 @@ Scenario: deduplicates fields / selections regardless of adjacency and type cond
       "node": {
         "kind": "Fetch",
         "serviceName": "documents",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "body"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Text"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "attributes"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "bold"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "text"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{body{__typename ...on Text{attributes{bold text}}}}"
       }
     }
@@ -1217,7 +5094,71 @@ Scenario: deduplicates fields / selections regardless of adjacency and type cond
       "node": {
         "kind": "Fetch",
         "serviceName": "documents",
-        "variableUsages": [],
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "body"
+            },
+            "arguments": [],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Text"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "attributes"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                      "kind": "SelectionSet",
+                      "selections": [{
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "bold"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }, {
+                        "kind": "Field",
+                        "name": {
+                          "kind": "Name",
+                          "value": "text"
+                        },
+                        "arguments": [],
+                        "directives": []
+                      }]
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {},
+        "internalFragments": {},
         "operation": "{body{__typename ...on Text{attributes{bold text}}}}"
       }
     }
@@ -1239,10 +5180,101 @@ Scenario: supports basic, single-service mutation
     "node": {
       "kind": "Fetch",
       "serviceName": "accounts",
-      "variableUsages": [
-        "username",
-        "password"
-      ],
+      "selectionSet": {
+        "kind": "SelectionSet",
+        "selections": [{
+          "kind": "Field",
+          "name": {
+            "kind": "Name",
+            "value": "login"
+          },
+          "arguments": [{
+            "kind": "Argument",
+            "name": {
+              "kind": "Name",
+              "value": "username"
+            },
+            "value": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "username"
+              }
+            }
+          }, {
+            "kind": "Argument",
+            "name": {
+              "kind": "Name",
+              "value": "password"
+            },
+            "value": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "password"
+              }
+            }
+          }],
+          "directives": [],
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "Field",
+              "name": {
+                "kind": "Name",
+                "value": "id"
+              },
+              "arguments": [],
+              "directives": []
+            }]
+          }
+        }]
+      },
+      "variableUsages": {
+        "username": {
+          "kind": "VariableDefinition",
+          "variable": {
+            "kind": "Variable",
+            "name": {
+              "kind": "Name",
+              "value": "username"
+            }
+          },
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "String"
+              }
+            }
+          },
+          "directives": []
+        },
+        "password": {
+          "kind": "VariableDefinition",
+          "variable": {
+            "kind": "Variable",
+            "name": {
+              "kind": "Name",
+              "value": "password"
+            }
+          },
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "String"
+              }
+            }
+          },
+          "directives": []
+        }
+      },
+      "internalFragments": {},
       "operation": "mutation($username:String!$password:String!){login(username:$username password:$password){id}}"
     }
   }
@@ -1268,76 +5300,374 @@ Scenario: supports mutations with a cross-service request
     "kind": "QueryPlan",
     "node": {
       "kind": "Sequence",
-      "nodes": [
-        {
+      "nodes": [{
+        "kind": "Fetch",
+        "serviceName": "accounts",
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "login"
+            },
+            "arguments": [{
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "username"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "username"
+                }
+              }
+            }, {
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "password"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "password"
+                }
+              }
+            }],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "id",
+                  "loc": {
+                    "start": 8,
+                    "end": 10
+                  }
+                },
+                "arguments": [],
+                "directives": [],
+                "loc": {
+                  "start": 8,
+                  "end": 10
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {
+          "username": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "username"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
+          },
+          "password": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "password"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
+          }
+        },
+        "internalFragments": {},
+        "operation": "mutation($username:String!$password:String!){login(username:$username password:$password){__typename id}}"
+      }, {
+        "kind": "Flatten",
+        "path": ["login"],
+        "node": {
           "kind": "Fetch",
-          "serviceName": "accounts",
-          "variableUsages": [
-            "username",
-            "password"
-          ],
-          "operation": "mutation($username:String!$password:String!){login(username:$username password:$password){__typename id}}"
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "login"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "User",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
+          "serviceName": "reviews",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "InlineFragment",
+              "typeCondition": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "User"
+                }
+              },
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "reviews"
                   },
-                  {
-                    "kind": "Field",
-                    "name": "id"
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "product"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "Book"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "__typename"
+                              }
+                            }, {
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "isbn",
+                                "loc": {
+                                  "start": 8,
+                                  "end": 12
+                                }
+                              },
+                              "arguments": [],
+                              "directives": [],
+                              "loc": {
+                                "start": 8,
+                                "end": 12
+                              }
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "OutdoorFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "IndoorFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "Furniture"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "NightFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "VisuallyImpairedFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }]
+                      }
+                    }]
                   }
-                ]
+                }]
               }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{product{__typename ...on Book{__typename isbn}...on Furniture{upc}}}}}}"
-          }
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "login",
-            "reviews",
-            "@",
-            "product"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "Book",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
-                  },
-                  {
-                    "kind": "Field",
-                    "name": "isbn"
-                  }
-                ]
-              }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{upc}}}"
-          }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "requires": [{
+            "kind": "InlineFragment",
+            "typeCondition": "User",
+            "selections": [{
+              "kind": "Field",
+              "name": "__typename"
+            }, {
+              "kind": "Field",
+              "name": "id"
+            }]
+          }],
+          "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{product{__typename ...on Book{__typename isbn}...on OutdoorFootball{upc}...on IndoorFootball{upc}...on Furniture{upc}...on NightFootball{upc}...on VisuallyImpairedFootball{upc}}}}}}"
         }
-      ]
+      }, {
+        "kind": "Flatten",
+        "path": ["login", "reviews", "@", "product"],
+        "node": {
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "InlineFragment",
+              "typeCondition": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Book"
+                }
+              },
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "upc"
+                  },
+                  "arguments": [],
+                  "directives": []
+                }]
+              }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "requires": [{
+            "kind": "InlineFragment",
+            "typeCondition": "Book",
+            "selections": [{
+              "kind": "Field",
+              "name": "__typename"
+            }, {
+              "kind": "Field",
+              "name": "isbn"
+            }]
+          }],
+          "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{upc}}}"
+        }
+      }]
     }
   }
   """
@@ -1360,45 +5690,185 @@ Scenario: returning across service boundaries
     "kind": "QueryPlan",
     "node": {
       "kind": "Sequence",
-      "nodes": [
-        {
-          "kind": "Fetch",
-          "serviceName": "reviews",
-          "variableUsages": [
-            "upc",
-            "body"
-          ],
-          "operation": "mutation($upc:String!$body:String!){reviewProduct(upc:$upc body:$body){__typename ...on Furniture{__typename upc}}}"
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "reviewProduct"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "Furniture",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
-                  },
-                  {
-                    "kind": "Field",
-                    "name": "upc"
-                  }
-                ]
+      "nodes": [{
+        "kind": "Fetch",
+        "serviceName": "reviews",
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "reviewProduct"
+            },
+            "arguments": [{
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "upc"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "upc"
+                }
               }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Furniture{name}}}"
+            }, {
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "body"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "body"
+                }
+              }
+            }],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Furniture"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "__typename"
+                    }
+                  }, {
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "upc",
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "loc": {
+                      "start": 8,
+                      "end": 11
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {
+          "upc": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "upc"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
+          },
+          "body": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "body"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
           }
+        },
+        "internalFragments": {},
+        "operation": "mutation($upc:String!$body:String!){reviewProduct(upc:$upc body:$body){__typename ...on Furniture{__typename upc}}}"
+      }, {
+        "kind": "Flatten",
+        "path": ["reviewProduct"],
+        "node": {
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "InlineFragment",
+              "typeCondition": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Furniture"
+                }
+              },
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "name"
+                  },
+                  "arguments": [],
+                  "directives": []
+                }]
+              }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "requires": [{
+            "kind": "InlineFragment",
+            "typeCondition": "Furniture",
+            "selections": [{
+              "kind": "Field",
+              "name": "__typename"
+            }, {
+              "kind": "Field",
+              "name": "upc"
+            }]
+          }],
+          "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Furniture{name}}}"
         }
-      ]
+      }]
     }
   }
   """
@@ -1433,113 +5903,552 @@ Scenario: supports multiple root mutations
     "kind": "QueryPlan",
     "node": {
       "kind": "Sequence",
-      "nodes": [
-        {
-          "kind": "Fetch",
-          "serviceName": "accounts",
-          "variableUsages": [
-            "username",
-            "password"
-          ],
-          "operation": "mutation($username:String!$password:String!){login(username:$username password:$password){__typename id}}"
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "login"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "User",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
-                  },
-                  {
-                    "kind": "Field",
-                    "name": "id"
-                  }
-                ]
+      "nodes": [{
+        "kind": "Fetch",
+        "serviceName": "accounts",
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "login"
+            },
+            "arguments": [{
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "username"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "username"
+                }
               }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{product{__typename ...on Book{__typename isbn}...on Furniture{upc}}}}}}"
+            }, {
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "password"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "password"
+                }
+              }
+            }],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "id",
+                  "loc": {
+                    "start": 8,
+                    "end": 10
+                  }
+                },
+                "arguments": [],
+                "directives": [],
+                "loc": {
+                  "start": 8,
+                  "end": 10
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {
+          "username": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "username"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
+          },
+          "password": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "password"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
           }
         },
-        {
-          "kind": "Flatten",
-          "path": [
-            "login",
-            "reviews",
-            "@",
-            "product"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "Book",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
-                  },
-                  {
-                    "kind": "Field",
-                    "name": "isbn"
-                  }
-                ]
-              }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{upc}}}"
-          }
-        },
-        {
+        "internalFragments": {},
+        "operation": "mutation($username:String!$password:String!){login(username:$username password:$password){__typename id}}"
+      }, {
+        "kind": "Flatten",
+        "path": ["login"],
+        "node": {
           "kind": "Fetch",
           "serviceName": "reviews",
-          "variableUsages": [
-            "upc",
-            "body"
-          ],
-          "operation": "mutation($upc:String!$body:String!){reviewProduct(upc:$upc body:$body){__typename ...on Furniture{__typename upc}}}"
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "reviewProduct"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "Furniture",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "InlineFragment",
+              "typeCondition": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "User"
+                }
+              },
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "reviews"
                   },
-                  {
-                    "kind": "Field",
-                    "name": "upc"
+                  "arguments": [],
+                  "directives": [],
+                  "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "product"
+                      },
+                      "arguments": [],
+                      "directives": [],
+                      "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                          "kind": "Field",
+                          "name": {
+                            "kind": "Name",
+                            "value": "__typename"
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "Book"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "__typename"
+                              }
+                            }, {
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "isbn",
+                                "loc": {
+                                  "start": 8,
+                                  "end": 12
+                                }
+                              },
+                              "arguments": [],
+                              "directives": [],
+                              "loc": {
+                                "start": 8,
+                                "end": 12
+                              }
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "OutdoorFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "IndoorFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "Furniture"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "NightFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }, {
+                          "kind": "InlineFragment",
+                          "typeCondition": {
+                            "kind": "NamedType",
+                            "name": {
+                              "kind": "Name",
+                              "value": "VisuallyImpairedFootball"
+                            }
+                          },
+                          "selectionSet": {
+                            "kind": "SelectionSet",
+                            "selections": [{
+                              "kind": "Field",
+                              "name": {
+                                "kind": "Name",
+                                "value": "upc"
+                              },
+                              "arguments": [],
+                              "directives": []
+                            }]
+                          }
+                        }]
+                      }
+                    }]
                   }
-                ]
+                }]
               }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Furniture{name}}}"
-          }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "requires": [{
+            "kind": "InlineFragment",
+            "typeCondition": "User",
+            "selections": [{
+              "kind": "Field",
+              "name": "__typename"
+            }, {
+              "kind": "Field",
+              "name": "id"
+            }]
+          }],
+          "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{product{__typename ...on Book{__typename isbn}...on OutdoorFootball{upc}...on IndoorFootball{upc}...on Furniture{upc}...on NightFootball{upc}...on VisuallyImpairedFootball{upc}}}}}}"
         }
-      ]
+      }, {
+        "kind": "Flatten",
+        "path": ["login", "reviews", "@", "product"],
+        "node": {
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "InlineFragment",
+              "typeCondition": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Book"
+                }
+              },
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "upc"
+                  },
+                  "arguments": [],
+                  "directives": []
+                }]
+              }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "requires": [{
+            "kind": "InlineFragment",
+            "typeCondition": "Book",
+            "selections": [{
+              "kind": "Field",
+              "name": "__typename"
+            }, {
+              "kind": "Field",
+              "name": "isbn"
+            }]
+          }],
+          "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{upc}}}"
+        }
+      }, {
+        "kind": "Fetch",
+        "serviceName": "reviews",
+        "selectionSet": {
+          "kind": "SelectionSet",
+          "selections": [{
+            "kind": "Field",
+            "name": {
+              "kind": "Name",
+              "value": "reviewProduct"
+            },
+            "arguments": [{
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "upc"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "upc"
+                }
+              }
+            }, {
+              "kind": "Argument",
+              "name": {
+                "kind": "Name",
+                "value": "body"
+              },
+              "value": {
+                "kind": "Variable",
+                "name": {
+                  "kind": "Name",
+                  "value": "body"
+                }
+              }
+            }],
+            "directives": [],
+            "selectionSet": {
+              "kind": "SelectionSet",
+              "selections": [{
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "__typename"
+                }
+              }, {
+                "kind": "InlineFragment",
+                "typeCondition": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Furniture"
+                  }
+                },
+                "selectionSet": {
+                  "kind": "SelectionSet",
+                  "selections": [{
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "__typename"
+                    }
+                  }, {
+                    "kind": "Field",
+                    "name": {
+                      "kind": "Name",
+                      "value": "upc",
+                      "loc": {
+                        "start": 8,
+                        "end": 11
+                      }
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "loc": {
+                      "start": 8,
+                      "end": 11
+                    }
+                  }]
+                }
+              }]
+            }
+          }]
+        },
+        "variableUsages": {
+          "upc": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "upc"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
+          },
+          "body": {
+            "kind": "VariableDefinition",
+            "variable": {
+              "kind": "Variable",
+              "name": {
+                "kind": "Name",
+                "value": "body"
+              }
+            },
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            },
+            "directives": []
+          }
+        },
+        "internalFragments": {},
+        "operation": "mutation($upc:String!$body:String!){reviewProduct(upc:$upc body:$body){__typename ...on Furniture{__typename upc}}}"
+      }, {
+        "kind": "Flatten",
+        "path": ["reviewProduct"],
+        "node": {
+          "kind": "Fetch",
+          "serviceName": "product",
+          "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+              "kind": "InlineFragment",
+              "typeCondition": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Furniture"
+                }
+              },
+              "selectionSet": {
+                "kind": "SelectionSet",
+                "selections": [{
+                  "kind": "Field",
+                  "name": {
+                    "kind": "Name",
+                    "value": "name"
+                  },
+                  "arguments": [],
+                  "directives": []
+                }]
+              }
+            }]
+          },
+          "variableUsages": {},
+          "internalFragments": {},
+          "requires": [{
+            "kind": "InlineFragment",
+            "typeCondition": "Furniture",
+            "selections": [{
+              "kind": "Field",
+              "name": "__typename"
+            }, {
+              "kind": "Field",
+              "name": "upc"
+            }]
+          }],
+          "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Furniture{name}}}"
+        }
+      }]
     }
   }
   """
@@ -1578,97 +6487,610 @@ Scenario: multiple root mutations with correct service order
   Then query plan
   """
   {
-    "kind": "QueryPlan",
-    "node": {
-      "kind": "Sequence",
-      "nodes": [
-        {
-          "kind": "Fetch",
-          "serviceName": "reviews",
-          "variableUsages": [
-            "upc",
-            "body",
-            "updatedReview"
-          ],
-          "operation": "mutation($upc:String!$body:String!$updatedReview:UpdateReviewInput!){reviewProduct(upc:$upc body:$body){__typename ...on Furniture{upc}}updateReview(review:$updatedReview){id body}}"
-        },
-        {
-          "kind": "Fetch",
-          "serviceName": "accounts",
-          "variableUsages": [
-            "username",
-            "password"
-          ],
-          "operation": "mutation($username:String!$password:String!){login(username:$username password:$password){__typename id}}"
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "login"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "reviews",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "User",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
-                  },
-                  {
-                    "kind": "Field",
-                    "name": "id"
-                  }
-                ]
-              }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{product{__typename ...on Book{__typename isbn}...on Furniture{upc}}}}}}"
-          }
-        },
-        {
-          "kind": "Flatten",
-          "path": [
-            "login",
-            "reviews",
-            "@",
-            "product"
-          ],
-          "node": {
-            "kind": "Fetch",
-            "serviceName": "product",
-            "requires": [
-              {
-                "kind": "InlineFragment",
-                "typeCondition": "Book",
-                "selections": [
-                  {
-                    "kind": "Field",
-                    "name": "__typename"
-                  },
-                  {
-                    "kind": "Field",
-                    "name": "isbn"
-                  }
-                ]
-              }
-            ],
-            "variableUsages": [],
-            "operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{upc}}}"
-          }
-        },
-        {
-          "kind": "Fetch",
-          "serviceName": "reviews",
-          "variableUsages": [
-            "reviewId"
-          ],
-          "operation": "mutation($reviewId:ID!){deleteReview(id:$reviewId)}"
-        }
-      ]
-    }
-  }
+	"kind": "QueryPlan",
+	"node": {
+		"kind": "Sequence",
+		"nodes": [{
+			"kind": "Fetch",
+			"serviceName": "reviews",
+			"selectionSet": {
+				"kind": "SelectionSet",
+				"selections": [{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "reviewProduct"
+					},
+					"arguments": [{
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "upc"
+						},
+						"value": {
+							"kind": "Variable",
+							"name": {
+								"kind": "Name",
+								"value": "upc"
+							}
+						}
+					}, {
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "body"
+						},
+						"value": {
+							"kind": "Variable",
+							"name": {
+								"kind": "Name",
+								"value": "body"
+							}
+						}
+					}],
+					"directives": [],
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "__typename"
+							}
+						}, {
+							"kind": "InlineFragment",
+							"typeCondition": {
+								"kind": "NamedType",
+								"name": {
+									"kind": "Name",
+									"value": "Furniture"
+								}
+							},
+							"selectionSet": {
+								"kind": "SelectionSet",
+								"selections": [{
+									"kind": "Field",
+									"name": {
+										"kind": "Name",
+										"value": "upc"
+									},
+									"arguments": [],
+									"directives": []
+								}]
+							}
+						}]
+					}
+				}, {
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "updateReview"
+					},
+					"arguments": [{
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "review"
+						},
+						"value": {
+							"kind": "Variable",
+							"name": {
+								"kind": "Name",
+								"value": "updatedReview"
+							}
+						}
+					}],
+					"directives": [],
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "id"
+							},
+							"arguments": [],
+							"directives": []
+						}, {
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "body"
+							},
+							"arguments": [],
+							"directives": []
+						}]
+					}
+				}]
+			},
+			"variableUsages": {
+				"upc": {
+					"kind": "VariableDefinition",
+					"variable": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "upc"
+						}
+					},
+					"type": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "String"
+							}
+						}
+					},
+					"directives": []
+				},
+				"body": {
+					"kind": "VariableDefinition",
+					"variable": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "body"
+						}
+					},
+					"type": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "String"
+							}
+						}
+					},
+					"directives": []
+				},
+				"updatedReview": {
+					"kind": "VariableDefinition",
+					"variable": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "updatedReview"
+						}
+					},
+					"type": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "UpdateReviewInput"
+							}
+						}
+					},
+					"directives": []
+				}
+			},
+			"internalFragments": {},
+			"operation": "mutation($upc:String!$body:String!$updatedReview:UpdateReviewInput!){reviewProduct(upc:$upc body:$body){__typename ...on Furniture{upc}}updateReview(review:$updatedReview){id body}}"
+		}, {
+			"kind": "Fetch",
+			"serviceName": "accounts",
+			"selectionSet": {
+				"kind": "SelectionSet",
+				"selections": [{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "login"
+					},
+					"arguments": [{
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "username"
+						},
+						"value": {
+							"kind": "Variable",
+							"name": {
+								"kind": "Name",
+								"value": "username"
+							}
+						}
+					}, {
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "password"
+						},
+						"value": {
+							"kind": "Variable",
+							"name": {
+								"kind": "Name",
+								"value": "password"
+							}
+						}
+					}],
+					"directives": [],
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "__typename"
+							}
+						}, {
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "id",
+								"loc": {
+									"start": 8,
+									"end": 10
+								}
+							},
+							"arguments": [],
+							"directives": [],
+							"loc": {
+								"start": 8,
+								"end": 10
+							}
+						}]
+					}
+				}]
+			},
+			"variableUsages": {
+				"username": {
+					"kind": "VariableDefinition",
+					"variable": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "username"
+						}
+					},
+					"type": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "String"
+							}
+						}
+					},
+					"directives": []
+				},
+				"password": {
+					"kind": "VariableDefinition",
+					"variable": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "password"
+						}
+					},
+					"type": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "String"
+							}
+						}
+					},
+					"directives": []
+				}
+			},
+			"internalFragments": {},
+			"operation": "mutation($username:String!$password:String!){login(username:$username password:$password){__typename id}}"
+		}, {
+			"kind": "Flatten",
+			"path": ["login"],
+			"node": {
+				"kind": "Fetch",
+				"serviceName": "reviews",
+				"selectionSet": {
+					"kind": "SelectionSet",
+					"selections": [{
+						"kind": "InlineFragment",
+						"typeCondition": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "User"
+							}
+						},
+						"selectionSet": {
+							"kind": "SelectionSet",
+							"selections": [{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "reviews"
+								},
+								"arguments": [],
+								"directives": [],
+								"selectionSet": {
+									"kind": "SelectionSet",
+									"selections": [{
+										"kind": "Field",
+										"name": {
+											"kind": "Name",
+											"value": "product"
+										},
+										"arguments": [],
+										"directives": [],
+										"selectionSet": {
+											"kind": "SelectionSet",
+											"selections": [{
+												"kind": "Field",
+												"name": {
+													"kind": "Name",
+													"value": "__typename"
+												}
+											}, {
+												"kind": "InlineFragment",
+												"typeCondition": {
+													"kind": "NamedType",
+													"name": {
+														"kind": "Name",
+														"value": "Book"
+													}
+												},
+												"selectionSet": {
+													"kind": "SelectionSet",
+													"selections": [{
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "__typename"
+														}
+													}, {
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "isbn",
+															"loc": {
+																"start": 8,
+																"end": 12
+															}
+														},
+														"arguments": [],
+														"directives": [],
+														"loc": {
+															"start": 8,
+															"end": 12
+														}
+													}]
+												}
+											}, {
+												"kind": "InlineFragment",
+												"typeCondition": {
+													"kind": "NamedType",
+													"name": {
+														"kind": "Name",
+														"value": "OutdoorFootball"
+													}
+												},
+												"selectionSet": {
+													"kind": "SelectionSet",
+													"selections": [{
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "upc"
+														},
+														"arguments": [],
+														"directives": []
+													}]
+												}
+											}, {
+												"kind": "InlineFragment",
+												"typeCondition": {
+													"kind": "NamedType",
+													"name": {
+														"kind": "Name",
+														"value": "IndoorFootball"
+													}
+												},
+												"selectionSet": {
+													"kind": "SelectionSet",
+													"selections": [{
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "upc"
+														},
+														"arguments": [],
+														"directives": []
+													}]
+												}
+											}, {
+												"kind": "InlineFragment",
+												"typeCondition": {
+													"kind": "NamedType",
+													"name": {
+														"kind": "Name",
+														"value": "Furniture"
+													}
+												},
+												"selectionSet": {
+													"kind": "SelectionSet",
+													"selections": [{
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "upc"
+														},
+														"arguments": [],
+														"directives": []
+													}]
+												}
+											}, {
+												"kind": "InlineFragment",
+												"typeCondition": {
+													"kind": "NamedType",
+													"name": {
+														"kind": "Name",
+														"value": "NightFootball"
+													}
+												},
+												"selectionSet": {
+													"kind": "SelectionSet",
+													"selections": [{
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "upc"
+														},
+														"arguments": [],
+														"directives": []
+													}]
+												}
+											}, {
+												"kind": "InlineFragment",
+												"typeCondition": {
+													"kind": "NamedType",
+													"name": {
+														"kind": "Name",
+														"value": "VisuallyImpairedFootball"
+													}
+												},
+												"selectionSet": {
+													"kind": "SelectionSet",
+													"selections": [{
+														"kind": "Field",
+														"name": {
+															"kind": "Name",
+															"value": "upc"
+														},
+														"arguments": [],
+														"directives": []
+													}]
+												}
+											}]
+										}
+									}]
+								}
+							}]
+						}
+					}]
+				},
+				"variableUsages": {},
+				"internalFragments": {},
+				"requires": [{
+					"kind": "InlineFragment",
+					"typeCondition": "User",
+					"selections": [{
+						"kind": "Field",
+						"name": "__typename"
+					}, {
+						"kind": "Field",
+						"name": "id"
+					}]
+				}],
+				"operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on User{reviews{product{__typename ...on Book{__typename isbn}...on OutdoorFootball{upc}...on IndoorFootball{upc}...on Furniture{upc}...on NightFootball{upc}...on VisuallyImpairedFootball{upc}}}}}}"
+			}
+		}, {
+			"kind": "Flatten",
+			"path": ["login", "reviews", "@", "product"],
+			"node": {
+				"kind": "Fetch",
+				"serviceName": "product",
+				"selectionSet": {
+					"kind": "SelectionSet",
+					"selections": [{
+						"kind": "InlineFragment",
+						"typeCondition": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "Book"
+							}
+						},
+						"selectionSet": {
+							"kind": "SelectionSet",
+							"selections": [{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "upc"
+								},
+								"arguments": [],
+								"directives": []
+							}]
+						}
+					}]
+				},
+				"variableUsages": {},
+				"internalFragments": {},
+				"requires": [{
+					"kind": "InlineFragment",
+					"typeCondition": "Book",
+					"selections": [{
+						"kind": "Field",
+						"name": "__typename"
+					}, {
+						"kind": "Field",
+						"name": "isbn"
+					}]
+				}],
+				"operation": "query($representations:[_Any!]!){_entities(representations:$representations){...on Book{upc}}}"
+			}
+		}, {
+			"kind": "Fetch",
+			"serviceName": "reviews",
+			"selectionSet": {
+				"kind": "SelectionSet",
+				"selections": [{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "deleteReview"
+					},
+					"arguments": [{
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "id"
+						},
+						"value": {
+							"kind": "Variable",
+							"name": {
+								"kind": "Name",
+								"value": "reviewId"
+							}
+						}
+					}],
+					"directives": []
+				}]
+			},
+			"variableUsages": {
+				"reviewId": {
+					"kind": "VariableDefinition",
+					"variable": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "reviewId"
+						}
+					},
+					"type": {
+						"kind": "NonNullType",
+						"type": {
+							"kind": "NamedType",
+							"name": {
+								"kind": "Name",
+								"value": "ID"
+							}
+						}
+					},
+					"directives": []
+				}
+			},
+			"internalFragments": {},
+			"operation": "mutation($reviewId:ID!){deleteReview(id:$reviewId)}"
+		}]
+	}
+}
   """

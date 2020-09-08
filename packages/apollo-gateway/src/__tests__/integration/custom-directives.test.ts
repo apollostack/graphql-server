@@ -122,7 +122,7 @@ describe('custom executable directives', () => {
 
 [@transform] -> Custom directives must be implemented in every service. The following services do not implement the @transform directive: invalidService.
 
-[@invalid] -> Custom directives must be implemented in every service. The following services do not implement the @invalid directive: accounts, books, documents, inventory, product, reviews."
+[@invalid] -> Custom directives must be implemented in every service. The following services do not implement the @invalid directive: accounts, books, documents, inventory, product, reviews, colour-footballs."
 `);
   });
 
@@ -159,6 +159,7 @@ describe('custom executable directives', () => {
 	inventory: directive @stream on FIELD
 	product: directive @stream on FIELD
 	reviews: directive @stream on FIELD
+	colour-footballs: directive @stream on FIELD
 	invalid: directive @stream on QUERY"
 `);
   });

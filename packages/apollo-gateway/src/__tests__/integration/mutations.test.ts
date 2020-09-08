@@ -245,7 +245,19 @@ it('multiple root mutations with correct service order', async () => {
                       __typename
                       isbn
                     }
+                    ... on OutdoorFootball {
+                      upc
+                    }
+                    ... on IndoorFootball {
+                      upc
+                    }
                     ... on Furniture {
+                      upc
+                    }
+                    ... on NightFootball {
+                      upc
+                    }
+                    ... on VisuallyImpairedFootball {
                       upc
                     }
                   }

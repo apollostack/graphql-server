@@ -16,7 +16,7 @@ describe('printComposedSdl', () => {
 
   it('produces a parseable output', () => {
     expect(() => parse(composedSdl)).not.toThrow();
-  })
+  });
 
   it('prints a fully composed schema correctly', () => {
     expect(composedSdl).toMatchInlineSnapshot(`
@@ -27,6 +27,7 @@ describe('printComposedSdl', () => {
         @graph(name: \\"inventory\\", url: \\"https://inventory.api.com\\")
         @graph(name: \\"product\\", url: \\"https://product.api.com\\")
         @graph(name: \\"reviews\\", url: \\"https://reviews.api.com\\")
+        @graph(name: \\"colour-footballs\\", url: \\"https://colour-footballs.api.com\\")
         @composedGraph(version: 1)
       {
         query: Query
@@ -100,6 +101,18 @@ describe('printComposedSdl', () => {
         message: String
       }
 
+      interface Football {
+        upc: String!
+        sku: String!
+        material: String
+        size: Int
+        colour: String
+      }
+
+      input Football_Where {
+        size: Int_Where
+      }
+
       type Furniture implements Product
         @owner(graph: \\"product\\")
         @key(fields: \\"{ upc }\\", graph: \\"product\\")
@@ -132,6 +145,32 @@ describe('printComposedSdl', () => {
         url: String!
       }
 
+      type IndoorFootball implements Product & Football
+        @owner(graph: \\"product\\")
+        @key(fields: \\"{ upc }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"inventory\\")
+        @key(fields: \\"{ upc }\\", graph: \\"reviews\\")
+        @key(fields: \\"{ upc }\\", graph: \\"colour-footballs\\")
+      {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        inStock: Boolean @resolve(graph: \\"inventory\\")
+        reviews: [Review] @resolve(graph: \\"reviews\\")
+        colour: String @resolve(graph: \\"colour-footballs\\")
+      }
+
+      input Int_Where {
+        \\"\\"\\"Greater than Int\\"\\"\\"
+        GTE: Int
+      }
+
       type KeyValue {
         key: String!
         value: String!
@@ -159,6 +198,50 @@ describe('printComposedSdl', () => {
       type Name {
         first: String
         last: String
+      }
+
+      type NightFootball implements Product & Football
+        @owner(graph: \\"product\\")
+        @key(fields: \\"{ upc }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"inventory\\")
+        @key(fields: \\"{ upc }\\", graph: \\"reviews\\")
+        @key(fields: \\"{ upc }\\", graph: \\"colour-footballs\\")
+      {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        batteries: String
+        inStock: Boolean @resolve(graph: \\"inventory\\")
+        reviews: [Review] @resolve(graph: \\"reviews\\")
+        colour: String @resolve(graph: \\"colour-footballs\\")
+      }
+
+      type OutdoorFootball implements Product & Football
+        @owner(graph: \\"product\\")
+        @key(fields: \\"{ upc }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"inventory\\")
+        @key(fields: \\"{ upc }\\", graph: \\"reviews\\")
+        @key(fields: \\"{ upc }\\", graph: \\"colour-footballs\\")
+      {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        inStock: Boolean @resolve(graph: \\"inventory\\")
+        reviews: [Review] @resolve(graph: \\"reviews\\")
+        colour: String @resolve(graph: \\"colour-footballs\\")
+        heavy: Boolean @resolve(graph: \\"colour-footballs\\") @requires(fields: \\"{ weight }\\")
       }
 
       type PasswordAccount
@@ -199,10 +282,13 @@ describe('printComposedSdl', () => {
         books: [Book] @resolve(graph: \\"books\\")
         library(id: ID!): Library @resolve(graph: \\"books\\")
         body: Body! @resolve(graph: \\"documents\\")
-        product(upc: String!): Product @resolve(graph: \\"product\\")
+        product(upc: String): Product @resolve(graph: \\"product\\")
         vehicle(id: String!): Vehicle @resolve(graph: \\"product\\")
         topProducts(first: Int = 5): [Product] @resolve(graph: \\"product\\")
         topCars(first: Int = 5): [Car] @resolve(graph: \\"product\\")
+        footballs(upc: String, where: Football_Where): [Football] @resolve(graph: \\"product\\")
+        outdoorFootballs(upc: String, where: Football_Where): [OutdoorFootball] @resolve(graph: \\"product\\")
+        indoorFootballs(upc: String, where: Football_Where): [IndoorFootball] @resolve(graph: \\"product\\")
         topReviews(first: Int = 5): [Review] @resolve(graph: \\"reviews\\")
       }
 
@@ -285,6 +371,27 @@ describe('printComposedSdl', () => {
         description: String
         price: String
         retailPrice: String
+      }
+
+      type VisuallyImpairedFootball implements Product & Football
+        @owner(graph: \\"product\\")
+        @key(fields: \\"{ upc }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"product\\")
+        @key(fields: \\"{ sku }\\", graph: \\"inventory\\")
+        @key(fields: \\"{ upc }\\", graph: \\"reviews\\")
+        @key(fields: \\"{ upc }\\", graph: \\"colour-footballs\\")
+      {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        inStock: Boolean @resolve(graph: \\"inventory\\")
+        reviews: [Review] @resolve(graph: \\"reviews\\")
+        colour: String @resolve(graph: \\"colour-footballs\\")
       }
       "
     `);

@@ -59,6 +59,14 @@ describe('value types', () => {
                   __typename
                   isbn
                 }
+                ... on OutdoorFootball {
+                  upc
+                  __typename
+                }
+                ... on IndoorFootball {
+                  upc
+                  __typename
+                }
                 ... on Furniture {
                   upc
                   metadata {
@@ -72,6 +80,14 @@ describe('value types', () => {
                       message
                     }
                   }
+                  __typename
+                }
+                ... on NightFootball {
+                  upc
+                  __typename
+                }
+                ... on VisuallyImpairedFootball {
+                  upc
                   __typename
                 }
               }
@@ -110,13 +126,44 @@ describe('value types', () => {
                     __typename
                     isbn
                   }
+                  ... on OutdoorFootball {
+                    __typename
+                    upc
+                  }
+                  ... on IndoorFootball {
+                    __typename
+                    upc
+                  }
                   ... on Furniture {
+                    __typename
+                    upc
+                  }
+                  ... on NightFootball {
+                    __typename
+                    upc
+                  }
+                  ... on VisuallyImpairedFootball {
                     __typename
                     upc
                   }
                 } =>
                 {
                   ... on Book {
+                    reviews {
+                      metadata {
+                        __typename
+                        ... on KeyValue {
+                          key
+                          value
+                        }
+                        ... on Error {
+                          code
+                          message
+                        }
+                      }
+                    }
+                  }
+                  ... on OutdoorFootball {
                     reviews {
                       metadata {
                         __typename

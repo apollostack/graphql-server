@@ -10,6 +10,7 @@ import { LocalGraphQLDataSource } from '../datasources/LocalGraphQLDataSource';
 
 import { astSerializer, queryPlanSerializer } from '../snapshotSerializers';
 import { getFederatedTestingSchema } from './execution-utils';
+import { serializeQueryPlan } from '../QueryPlan';
 
 expect.addSnapshotSerializer(astSerializer);
 expect.addSnapshotSerializer(queryPlanSerializer);
@@ -718,6 +719,53 @@ describe('executeQueryPlan', () => {
         "book": Object {
           "relatedReviews": Array [],
         },
+      }
+    `);
+  });
+
+  it(`can execute optimised queries whose fields are extended interface types`, async () => {
+    const query = gql`
+      query {
+        footballs(where: { size: { GTE: 4 } }) {
+          __typename
+          sku
+          material
+          colour
+          size
+        }
+      }
+    `;
+
+    const operationContext = buildOperationContext(schema, query);
+    const queryPlan = buildQueryPlan(operationContext);
+
+    console.log(serializeQueryPlan(queryPlan));
+
+    const response = await executeQueryPlan(
+      queryPlan,
+      serviceMap,
+      buildRequestContext(),
+      operationContext,
+    );
+
+    expect(response.data).toMatchInlineSnapshot(`
+      Object {
+        "footballs": Array [
+          Object {
+            "__typename": "OutdoorFootball",
+            "colour": "black",
+            "material": null,
+            "size": 5,
+            "sku": "FOOTBALL1",
+          },
+          Object {
+            "__typename": "OutdoorFootball",
+            "colour": "white",
+            "material": null,
+            "size": 4,
+            "sku": "FOOTBALL2",
+          },
+        ],
       }
     `);
   });

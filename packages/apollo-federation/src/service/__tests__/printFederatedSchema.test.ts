@@ -54,6 +54,18 @@ describe('printFederatedSchema', () => {
         message: String
       }
 
+      interface Football @key(fields: \\"upc\\") {
+        upc: String!
+        sku: String!
+        material: String
+        size: Int
+        colour: String
+      }
+
+      input Football_Where {
+        size: Int_Where
+      }
+
       type Furniture implements Product @key(fields: \\"sku\\") @key(fields: \\"upc\\") {
         upc: String!
         sku: String!
@@ -80,6 +92,25 @@ describe('printFederatedSchema', () => {
         url: String!
       }
 
+      type IndoorFootball implements Product & Football @key(fields: \\"sku\\") @key(fields: \\"upc\\") {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        inStock: Boolean
+        reviews: [Review]
+        colour: String
+      }
+
+      input Int_Where {
+        \\"\\"\\"Greater than Int\\"\\"\\"
+        GTE: Int
+      }
+
       type KeyValue {
         key: String!
         value: String!
@@ -103,6 +134,36 @@ describe('printFederatedSchema', () => {
       type Name {
         first: String
         last: String
+      }
+
+      type NightFootball implements Product & Football @key(fields: \\"sku\\") @key(fields: \\"upc\\") {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        batteries: String
+        inStock: Boolean
+        reviews: [Review]
+        colour: String
+      }
+
+      type OutdoorFootball implements Product & Football @key(fields: \\"sku\\") @key(fields: \\"upc\\") {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        inStock: Boolean
+        reviews: [Review]
+        colour: String
+        heavy: Boolean @requires(fields: \\"weight\\")
       }
 
       type PasswordAccount @key(fields: \\"email\\") {
@@ -140,10 +201,13 @@ describe('printFederatedSchema', () => {
         books: [Book]
         library(id: ID!): Library
         body: Body!
-        product(upc: String!): Product
+        product(upc: String): Product
         vehicle(id: String!): Vehicle
         topProducts(first: Int = 5): [Product]
         topCars(first: Int = 5): [Car]
+        footballs(upc: String, where: Football_Where): [Football]
+        outdoorFootballs(upc: String, where: Football_Where): [OutdoorFootball]
+        indoorFootballs(upc: String, where: Football_Where): [IndoorFootball]
         topReviews(first: Int = 5): [Review]
       }
 
@@ -209,6 +273,20 @@ describe('printFederatedSchema', () => {
         description: String
         price: String
         retailPrice: String
+      }
+
+      type VisuallyImpairedFootball implements Product & Football @key(fields: \\"sku\\") @key(fields: \\"upc\\") {
+        upc: String!
+        sku: String!
+        name: String
+        price: String
+        weight: Int
+        details: ProductDetails
+        material: String
+        size: Int
+        inStock: Boolean
+        reviews: [Review]
+        colour: String
       }
       "
     `);

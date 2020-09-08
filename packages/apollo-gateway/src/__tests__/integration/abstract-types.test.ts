@@ -45,7 +45,27 @@ it('handles an abstract type from the base service', async () => {
                 isbn
                 price
               }
+              ... on OutdoorFootball {
+                upc
+                name
+                price
+              }
+              ... on IndoorFootball {
+                upc
+                name
+                price
+              }
               ... on Furniture {
+                upc
+                name
+                price
+              }
+              ... on NightFootball {
+                upc
+                name
+                price
+              }
+              ... on VisuallyImpairedFootball {
                 upc
                 name
                 price
@@ -123,7 +143,23 @@ it('can request fields on extended interfaces', async () => {
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                sku
+              }
+              ... on IndoorFootball {
+                __typename
+                sku
+              }
               ... on Furniture {
+                __typename
+                sku
+              }
+              ... on NightFootball {
+                __typename
+                sku
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 sku
               }
@@ -137,15 +173,28 @@ it('can request fields on extended interfaces', async () => {
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                sku
+              }
+              ... on IndoorFootball {
+                __typename
+                sku
+              }
               ... on Furniture {
+                __typename
+                sku
+              }
+              ... on NightFootball {
+                __typename
+                sku
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 sku
               }
             } =>
             {
-              ... on Book {
-                inStock
-              }
               ... on Furniture {
                 inStock
               }
@@ -189,7 +238,23 @@ it('can request fields on extended types that implement an interface', async () 
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                sku
+              }
+              ... on IndoorFootball {
+                __typename
+                sku
+              }
               ... on Furniture {
+                __typename
+                sku
+              }
+              ... on NightFootball {
+                __typename
+                sku
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 sku
               }
@@ -203,15 +268,28 @@ it('can request fields on extended types that implement an interface', async () 
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                sku
+              }
+              ... on IndoorFootball {
+                __typename
+                sku
+              }
               ... on Furniture {
+                __typename
+                sku
+              }
+              ... on NightFootball {
+                __typename
+                sku
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 sku
               }
             } =>
             {
-              ... on Book {
-                inStock
-              }
               ... on Furniture {
                 inStock
                 isHeavy
@@ -259,7 +337,23 @@ it('prunes unfilled type conditions', async () => {
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                sku
+              }
+              ... on IndoorFootball {
+                __typename
+                sku
+              }
               ... on Furniture {
+                __typename
+                sku
+              }
+              ... on NightFootball {
+                __typename
+                sku
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 sku
               }
@@ -273,16 +367,28 @@ it('prunes unfilled type conditions', async () => {
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                sku
+              }
+              ... on IndoorFootball {
+                __typename
+                sku
+              }
               ... on Furniture {
+                __typename
+                sku
+              }
+              ... on NightFootball {
+                __typename
+                sku
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 sku
               }
             } =>
             {
-              ... on Book {
-                inStock
-                isCheckedOut
-              }
               ... on Furniture {
                 inStock
                 isHeavy
@@ -356,7 +462,23 @@ it('fetches interfaces returned from other services', async () => {
                       __typename
                       isbn
                     }
+                    ... on OutdoorFootball {
+                      __typename
+                      upc
+                    }
+                    ... on IndoorFootball {
+                      __typename
+                      upc
+                    }
                     ... on Furniture {
+                      __typename
+                      upc
+                    }
+                    ... on NightFootball {
+                      __typename
+                      upc
+                    }
+                    ... on VisuallyImpairedFootball {
                       __typename
                       upc
                     }
@@ -374,7 +496,23 @@ it('fetches interfaces returned from other services', async () => {
                   __typename
                   isbn
                 }
+                ... on OutdoorFootball {
+                  __typename
+                  upc
+                }
+                ... on IndoorFootball {
+                  __typename
+                  upc
+                }
                 ... on Furniture {
+                  __typename
+                  upc
+                }
+                ... on NightFootball {
+                  __typename
+                  upc
+                }
+                ... on VisuallyImpairedFootball {
                   __typename
                   upc
                 }
@@ -471,7 +609,23 @@ it('fetches composite fields from a foreign type casted to an interface [@provid
                       __typename
                       isbn
                     }
+                    ... on OutdoorFootball {
+                      __typename
+                      upc
+                    }
+                    ... on IndoorFootball {
+                      __typename
+                      upc
+                    }
                     ... on Furniture {
+                      __typename
+                      upc
+                    }
+                    ... on NightFootball {
+                      __typename
+                      upc
+                    }
+                    ... on VisuallyImpairedFootball {
                       __typename
                       upc
                     }
@@ -489,7 +643,23 @@ it('fetches composite fields from a foreign type casted to an interface [@provid
                   __typename
                   isbn
                 }
+                ... on OutdoorFootball {
+                  __typename
+                  upc
+                }
+                ... on IndoorFootball {
+                  __typename
+                  upc
+                }
                 ... on Furniture {
+                  __typename
+                  upc
+                }
+                ... on NightFootball {
+                  __typename
+                  upc
+                }
+                ... on VisuallyImpairedFootball {
                   __typename
                   upc
                 }
@@ -583,7 +753,23 @@ it('allows for extending an interface from another service with fields', async (
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                upc
+              }
+              ... on IndoorFootball {
+                __typename
+                upc
+              }
               ... on Furniture {
+                __typename
+                upc
+              }
+              ... on NightFootball {
+                __typename
+                upc
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 upc
               }
@@ -597,17 +783,28 @@ it('allows for extending an interface from another service with fields', async (
                 __typename
                 isbn
               }
+              ... on OutdoorFootball {
+                __typename
+                upc
+              }
+              ... on IndoorFootball {
+                __typename
+                upc
+              }
               ... on Furniture {
+                __typename
+                upc
+              }
+              ... on NightFootball {
+                __typename
+                upc
+              }
+              ... on VisuallyImpairedFootball {
                 __typename
                 upc
               }
             } =>
             {
-              ... on Book {
-                reviews {
-                  body
-                }
-              }
               ... on Furniture {
                 reviews {
                   body
@@ -695,7 +892,23 @@ describe('unions', () => {
                         __typename
                         isbn
                       }
+                      ... on OutdoorFootball {
+                        __typename
+                        upc
+                      }
+                      ... on IndoorFootball {
+                        __typename
+                        upc
+                      }
                       ... on Furniture {
+                        __typename
+                        upc
+                      }
+                      ... on NightFootball {
+                        __typename
+                        upc
+                      }
+                      ... on VisuallyImpairedFootball {
                         __typename
                         upc
                       }
@@ -712,7 +925,23 @@ describe('unions', () => {
                   __typename
                   isbn
                 }
+                ... on OutdoorFootball {
+                  __typename
+                  upc
+                }
+                ... on IndoorFootball {
+                  __typename
+                  upc
+                }
                 ... on Furniture {
+                  __typename
+                  upc
+                }
+                ... on NightFootball {
+                  __typename
+                  upc
+                }
+                ... on VisuallyImpairedFootball {
                   __typename
                   upc
                 }
