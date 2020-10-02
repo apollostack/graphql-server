@@ -86,7 +86,7 @@ Execution of a federated graph requires being able to "enter" into a service at 
 * Make each entity in the schema part of the `_Entity` union
 * Implement the `_entities` field on the query root
 
-To implement the `_Entity` union, each type annotated with `@key` should be added to the `_Entity` union. If no types are annotated with the key directive, then the `_Entity` union and `Query._entities` field should be removed from the schema. For example, given the following partial schema:
+To implement the `_Entity` union, each type annotated with `@key` should be added to the `_Entity` union. Types with all fields marked `@external` may be omitted from the `_Entity` union.  If no types are annotated with the key directive, then the `_Entity` union and `Query._entities` field should be removed from the schema. For example, given the following partial schema:
 
 ```graphql
 type Review @key(fields: "id") {
