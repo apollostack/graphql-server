@@ -47,6 +47,7 @@ module.exports = {
             'deployment/heroku',
             'deployment/lambda',
             'deployment/netlify',
+            'deployment/app-engine',
             'deployment/azure-functions',
           ],
           Monitoring: ['monitoring/metrics', 'monitoring/health-checks'],

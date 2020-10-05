@@ -47,7 +47,7 @@ const server = new ApolloServer({
 
 ### Configuring the proxy using environment variables
 
-Depending on the deployment environment (e.g. AWS, Heroku, Kubernetes, Docker, etc.), environment variables may be set differently.  These instructions will demonstrate how to start a `node` process using environment variables in a Unix-based shell.
+Depending on the deployment environment (e.g. AWS, Heroku, GCP, Kubernetes, Docker, etc.), environment variables may be set differently.  These instructions will demonstrate how to start a `node` process using environment variables in a Unix-based shell.
 
 By default, the above bootstrapping step will enable the following environment variables:
 

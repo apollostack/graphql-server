@@ -230,3 +230,4 @@ of schemas, resolvers, and deployment:
 * [Schema basics](/schema/schema/)
 * [Resolvers](/data/resolvers/)
 * [Deploying with Heroku](/deployment/heroku/)
+* [Deploying with Google App Engine](/deployment/app-engine/)
