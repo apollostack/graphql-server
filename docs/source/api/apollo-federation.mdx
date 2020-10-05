@@ -76,9 +76,9 @@ const typeDefs = gql`
 
 const resolvers = {
   User: {
-    __resolveReference(user, { datasources }){
+    __resolveReference(user, { dataSources }){
       // user will always have at least the `id` and the `__typename` here
-      return datasources.users.fetchUserById(user.id)
+      return dataSources.users.fetchUserById(user.id)
     }
   }
 };
