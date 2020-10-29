@@ -8,14 +8,14 @@ import { Headers } from 'apollo-server-env';
 import { ValueOrPromise } from 'apollo-server-types';
 
 export interface LambdaGraphQLOptionsFunction {
-  (event: lambda.APIGatewayProxyEvent, context: lambda.Context): ValueOrPromise<
+  (event: lambda.APIGatewayProxyEventV2, context: lambda.Context): ValueOrPromise<
     GraphQLOptions
   >;
 }
 
 export function graphqlLambda(
   options: GraphQLOptions | LambdaGraphQLOptionsFunction,
-): lambda.APIGatewayProxyHandler {
+): lambda.APIGatewayProxyHandlerV2 {
   if (!options) {
     throw new Error('Apollo Server requires options.');
   }
@@ -26,7 +26,7 @@ export function graphqlLambda(
     );
   }
 
-  const graphqlHandler: lambda.APIGatewayProxyHandler = (
+  const graphqlHandler: lambda.APIGatewayProxyHandlerV2 = (
     event,
     context,
     callback,
@@ -38,7 +38,7 @@ export function graphqlLambda(
       body = Buffer.from(body, 'base64').toString();
     }
 
-    if (event.httpMethod === 'POST' && !body) {
+    if (event.requestContext.http.method === 'POST' && !body) {
       return callback(null, {
         body: 'POST body missing.',
         statusCode: 500,
@@ -48,23 +48,23 @@ export function graphqlLambda(
     const contentType = event.headers["content-type"] || event.headers["Content-Type"];
     let query: Record<string, any> | Record<string, any>[];
 
-    if (body && event.httpMethod === 'POST' &&
+    if (body && event.requestContext.http.method === 'POST' &&
       contentType && contentType.startsWith("multipart/form-data")
     ) {
       query = body as any;
-    } else if (body && event.httpMethod === 'POST') {
+    } else if (body && event.requestContext.http.method === 'POST') {
       query = JSON.parse(body);
     } else {
       query = event.queryStringParameters || {};
     }
 
     runHttpQuery([event, context], {
-      method: event.httpMethod,
+      method: event.requestContext.http.method,
       options: options,
       query,
       request: {
-        url: event.path,
-        method: event.httpMethod,
+        url: event.requestContext.http.path,
+        method: event.requestContext.http.method,
         headers: new Headers(event.headers),
       },
     }).then(

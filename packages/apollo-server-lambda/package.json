@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@apollographql/graphql-playground-html": "1.6.26",
-    "@types/aws-lambda": "^8.10.31",
+    "@types/aws-lambda": "^8.10.62",
     "apollo-server-core": "file:../apollo-server-core",
     "apollo-server-env": "file:../apollo-server-env",
     "apollo-server-types": "file:../apollo-server-types",

@@ -1,6 +1,7 @@
 import {
-  APIGatewayProxyCallback,
-  APIGatewayProxyEvent,
+  APIGatewayProxyCallbackV2,
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
   Context as LambdaContext,
 } from 'aws-lambda';
 import {
@@ -34,7 +35,7 @@ export interface CreateHandlerOptions {
     maxAge?: number;
   };
   uploadsConfig?: FileUploadOptions;
-  onHealthCheck?: (req: APIGatewayProxyEvent) => Promise<any>;
+  onHealthCheck?: (req: APIGatewayProxyEventV2) => Promise<any>;
 }
 
 export class FileUploadRequest extends Readable {
@@ -55,7 +56,7 @@ export class ApolloServer extends ApolloServerBase {
   // provides typings for the integration specific behavior, ideally this would
   // be propagated with a generic to the super class
   createGraphQLServerOptions(
-    event: APIGatewayProxyEvent,
+    event: APIGatewayProxyEventV2,
     context: LambdaContext,
   ): Promise<GraphQLOptions> {
     return super.graphQLServerOptions({ event, context });
@@ -112,9 +113,9 @@ export class ApolloServer extends ApolloServerBase {
     }
 
     return (
-      event: APIGatewayProxyEvent,
+      event: APIGatewayProxyEventV2,
       context: LambdaContext,
-      callback: APIGatewayProxyCallback,
+      callback: APIGatewayProxyCallbackV2,
     ) => {
       // We re-load the headers into a Fetch API-compatible `Headers`
       // interface within `graphqlLambda`, but we still need to respect the
@@ -162,7 +163,7 @@ export class ApolloServer extends ApolloServerBase {
         return headersObject;
       }, {});
 
-      if (event.httpMethod === 'OPTIONS') {
+      if (event.requestContext.http.method === 'OPTIONS') {
         context.callbackWaitsForEmptyEventLoop = false;
         return callback(null, {
           body: '',
@@ -173,7 +174,7 @@ export class ApolloServer extends ApolloServerBase {
         });
       }
 
-      if (event.path === '/.well-known/apollo/server-health') {
+      if (event.requestContext.http.path === '/.well-known/apollo/server-health') {
         const successfulResponse = {
           body: JSON.stringify({ status: 'pass' }),
           statusCode: 200,
@@ -202,12 +203,12 @@ export class ApolloServer extends ApolloServerBase {
         }
       }
 
-      if (this.playgroundOptions && event.httpMethod === 'GET') {
+      if (this.playgroundOptions && event.requestContext.http.method === 'GET') {
         const acceptHeader = event.headers['Accept'] || event.headers['accept'];
         if (acceptHeader && acceptHeader.includes('text/html')) {
           const path =
-            event.path ||
-            (event.requestContext && event.requestContext.path) ||
+            event.requestContext.http.path ||
+            (event.requestContext && event.requestContext.http.path) ||
             '/';
 
           const playgroundRenderPageOptions: PlaygroundRenderPageOptions = {
@@ -227,14 +228,14 @@ export class ApolloServer extends ApolloServerBase {
       }
 
       const response = new Writable() as ServerResponse;
-      const callbackFilter: APIGatewayProxyCallback = (error, result) => {
+      const callbackFilter: APIGatewayProxyCallbackV2 = (error, result) => {
         response.end();
         callback(
           error,
           result && {
-            ...result,
+            ...(result as APIGatewayProxyStructuredResultV2),
             headers: {
-              ...result.headers,
+              ...(result as APIGatewayProxyStructuredResultV2).headers,
               ...requestCorsHeadersObject,
             },
           },
