@@ -30,19 +30,29 @@ When integrating with middleware, first you initialize Apollo Server just like y
 always do, and then you call `applyMiddleware`, like so:
 
 ```js
+// schema.js
+const { makeExecutableSchema } = require("apollo-server-express");
+
+module.exports = makeExecutableSchema({ typeDefs: [typeDefs], resolvers: Resolvers });
+```
+
+```js
+// server.js
+const express = require("express");
 const { ApolloServer, gql } = require('apollo-server-express');
-const { typeDefs, resolvers } = require('./schema');
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+const Schema = require('./schema');
+const PORT = 4000;
+
+const app = express();
+const apolloServer = new ApolloServer({ schema: Schema });
+apolloServer.applyMiddleware({ app });
+
+app.listen(PORT, () => {
+  console.log(
+    `🚀 Server ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
+  );
 });
-
-server.applyMiddleware({ app });
-
-app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-)
 ```
 
 In the above example, the `app` parameter you provide to `applyMiddleware`
