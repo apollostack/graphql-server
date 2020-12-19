@@ -355,12 +355,16 @@ describe('RESTDataSource', () => {
       );
     });
 
-    for (const method of ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']) {
+    for (const method of ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE']) {
       const dataSource = new (class extends RESTDataSource {
         baseURL = 'https://api.example.com';
 
         getFoo() {
           return this.get('foo');
+        }
+
+        headFoo() {
+          return this.head('foo');
         }
 
         postFoo() {
@@ -383,12 +387,19 @@ describe('RESTDataSource', () => {
       it(`allows performing ${method} requests`, async () => {
         dataSource.httpCache = httpCache;
 
-        fetch.mockJSONResponseOnce({ foo: 'bar' });
+        if (method === 'HEAD') {
+          fetch.mockResponseOnce('');
+        } else {
+          fetch.mockJSONResponseOnce({ foo: 'bar' });
+        }
 
         const data = await dataSource[`${method.toLocaleLowerCase()}Foo`]();
 
-        expect(data).toEqual({ foo: 'bar' });
-
+        if (method === 'HEAD') {
+          expect(data).toEqual('');
+        } else {
+          expect(data).toEqual({ foo: 'bar' });
+        }
         expect(fetch.mock.calls.length).toEqual(1);
         expect(fetch.mock.calls[0][0].method).toEqual(method);
       });

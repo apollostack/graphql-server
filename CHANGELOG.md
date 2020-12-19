@@ -11,6 +11,8 @@ The version headers in this history reflect the versions of Apollo Server itself
 
 > The changes noted within this `vNEXT` section have not been released yet.  New PRs and commits which introduce changes should include an entry in this `vNEXT` section as part of their development.  With few exceptions, the format of the entry should follow convention (i.e., prefix with package name, use markdown `backtick formatting` for package names and code, suffix with a link to the change-set à la `[PR #YYY](https://link/pull/YYY)`, etc.).  When a release is being prepared, a new header will be (manually) created below and the appropriate changes within that release will be moved into the new section.
 
+- `apollo-datasource-rest`: Introduced support for the HTTP `HEAD` method by exposing a `head` method on the base `RESTDataSource` class.  This works similarly to the `get` method, but for `HEAD` requests which do not return "body" content.  Rather than exposing data that can be retrieved from the body, `HEAD` requests typically expose data in their HTTP response headers (e.g., numbers, shorter strings, identifiers, [`ETag`s](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag), etc.). [Issue #3131](https://github.com/apollographql/apollo-server/issues/3131) [PR #4739](https://github.com/apollographql/apollo-server/pull/4739).
+
 ## v2.19.0
 
 - `apollo-server-testing`: types: Allow generic `variables` usage of `query` and `mutate` functions. [PR #4383](https://github.com/apollograpqh/apollo-server/pull/4383)

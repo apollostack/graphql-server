@@ -43,7 +43,7 @@ class MoviesAPI extends RESTDataSource {
 
 ### HTTP Methods
 
-The `get` method on the [RESTDataSource](https://github.com/apollographql/apollo-server/tree/main/packages/apollo-datasource-rest) makes an HTTP `GET` request. Similarly, there are methods built-in to allow for POST, PUT, PATCH, and DELETE requests.
+The `get` method on the [RESTDataSource](https://github.com/apollographql/apollo-server/tree/main/packages/apollo-datasource-rest) makes an HTTP `GET` request. Similarly, there are methods built-in to allow for HEAD, POST, PUT, PATCH, and DELETE requests.
 
 ```javascript
 class MoviesAPI extends RESTDataSource {
@@ -85,7 +85,7 @@ class MoviesAPI extends RESTDataSource {
 }
 ```
 
-All of the HTTP helper functions (`get`, `put`, `post`, `patch`, and `delete`) accept a third options parameter, which can be used to set things like headers and referrers. For more info on the options available, see MDN's [fetch docs](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+All of the HTTP helper functions (`get`, `head`, `put`, `post`, `patch`, and `delete`) accept a third options parameter, which can be used to set things like headers and referrers. For more info on the options available, see MDN's [fetch docs](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
 
 ### Intercepting fetches
 

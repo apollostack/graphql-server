@@ -161,6 +161,16 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
     );
   }
 
+  protected async head<TResult = any>(
+    path: string,
+    params?: URLSearchParamsInit,
+    init?: RequestInit,
+  ): Promise<TResult> {
+    return this.fetch<TResult>(
+      Object.assign({ method: 'HEAD', path, params }, init),
+    );
+  }
+
   protected async post<TResult = any>(
     path: string,
     body?: Body,
