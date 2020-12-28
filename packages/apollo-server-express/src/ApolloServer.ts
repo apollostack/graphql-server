@@ -79,8 +79,13 @@ export interface ExpressContext {
   connection?: ExecutionParams;
 }
 
+export type ExpressContextFunction<ProducedContext = Context> = ContextFunction<
+  ExpressContext,
+  ProducedContext
+>;
+
 export interface ApolloServerExpressConfig extends Config {
-  context?: ContextFunction<ExpressContext, Context> | Context;
+  context?: ExpressContextFunction<Context> | Context;
 }
 
 export class ApolloServer extends ApolloServerBase {
