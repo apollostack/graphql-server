@@ -35,7 +35,7 @@ In code, require the type defined by in the npm package and use it :
 const { ApolloServer, gql } = require('apollo-server');
 const GraphQLJSON = require('graphql-type-json');
 
-const schemaString = gql`
+const typeDefs = gql`
   scalar JSON
 
   type Foo {
@@ -47,11 +47,11 @@ const schemaString = gql`
   }
 `;
 
-const resolveFunctions = {
+const resolvers = {
   JSON: GraphQLJSON
 };
 
-const server = new ApolloServer({ typeDefs: schemaString, resolvers: resolveFunctions });
+const server = new ApolloServer({ typeDefs, resolvers });
 
 server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
@@ -89,7 +89,7 @@ const myCustomScalarType = new GraphQLScalarType({
   }
 });
 
-const schemaString = gql`
+const typeDefs = gql`
   scalar MyCustomScalar
 
   type Foo {
@@ -101,11 +101,11 @@ const schemaString = gql`
   }
 `;
 
-const resolverFunctions = {
+const resolvers = {
   MyCustomScalar: myCustomScalarType
 };
 
-const server = new ApolloServer({ typeDefs: schemaString, resolvers: resolverFunctions });
+const server = new ApolloServer({ typeDefs, resolvers });
 
 server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
