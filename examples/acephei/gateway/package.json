@@ -9,12 +9,13 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "@apollo/gateway": "../../../packages/apollo-gateway",
+    "apollo-server": "../../../packages/apollo-server"
+  },
   "peerDependencies": {
-    "@apollo/gateway": "*",
-    "apollo-server": "*",
     "apollo-server-plugin-operation-registry": "*"
   },
-  "dependencies": {},
   "engines": {
     "node": "12.x"
   },
