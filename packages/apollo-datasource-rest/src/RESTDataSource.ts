@@ -201,6 +201,24 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
     );
   }
 
+  protected async trace<TResult>(
+    label: string,
+    fn: () => Promise<TResult>,
+  ): Promise<TResult> {
+    if (process && process.env && process.env.NODE_ENV === 'development') {
+      // We're not using console.time because that isn't supported on Cloudflare
+      const startTime = Date.now();
+      try {
+        return await fn();
+      } finally {
+        const duration = Date.now() - startTime;
+        console.log(`${label} (${duration}ms)`);
+      }
+    } else {
+      return fn();
+    }
+  }
+
   private async fetch<TResult>(
     init: RequestInit & {
       path: string;
@@ -275,24 +293,6 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
     } else {
       this.memoizedResults.delete(cacheKey);
       return performRequest();
-    }
-  }
-
-  private async trace<TResult>(
-    label: string,
-    fn: () => Promise<TResult>,
-  ): Promise<TResult> {
-    if (process && process.env && process.env.NODE_ENV === 'development') {
-      // We're not using console.time because that isn't supported on Cloudflare
-      const startTime = Date.now();
-      try {
-        return await fn();
-      } finally {
-        const duration = Date.now() - startTime;
-        console.log(`${label} (${duration}ms)`);
-      }
-    } else {
-      return fn();
     }
   }
 }
