@@ -1,7 +1,4 @@
-import {
-  ApolloServerPlugin,
-  GraphQLRequestListener,
-} from 'apollo-server-plugin-base';
+import { ApolloServerPlugin, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { GraphQLRequestContext, GraphQLResponse } from 'apollo-server-types';
 import { KeyValueCache, PrefixingKeyValueCache } from 'apollo-server-caching';
 import { ValueOrPromise } from 'apollo-server-types';
@@ -54,9 +51,7 @@ interface Options<TContext = Record<string, any>> {
   //
   // This hook may return a promise because, for example, you might need to
   // validate a cookie against an external service.
-  sessionId?(
-    requestContext: GraphQLRequestContext<TContext>,
-  ): ValueOrPromise<string | null>;
+  sessionId?(requestContext: GraphQLRequestContext<TContext>): ValueOrPromise<string | null>;
 
   // Define this hook if you want the cache key to vary based on some aspect of
   // the request other than the query document, operation name, variables, and
@@ -64,21 +59,19 @@ interface Options<TContext = Record<string, any>> {
   // to return a string derived from
   // requestContext.request.http.headers.get('Accept-Language'). The data may
   // be anything that can be JSON-stringified.
-  extraCacheKeyData?(
-    requestContext: GraphQLRequestContext<TContext>,
-  ): ValueOrPromise<any>;
+  extraCacheKeyData?(requestContext: GraphQLRequestContext<TContext>): ValueOrPromise<any>;
 
   // If this hook is defined and returns false, the plugin will not read
   // responses from the cache.
-  shouldReadFromCache?(
-    requestContext: GraphQLRequestContext<TContext>,
-  ): ValueOrPromise<boolean>;
+  shouldReadFromCache?(requestContext: GraphQLRequestContext<TContext>): ValueOrPromise<boolean>;
 
   // If this hook is defined and returns false, the plugin will not write the
   // response to the cache.
-  shouldWriteToCache?(
-    requestContext: GraphQLRequestContext<TContext>,
-  ): ValueOrPromise<boolean>;
+  shouldWriteToCache?(requestContext: GraphQLRequestContext<TContext>): ValueOrPromise<boolean>;
+
+  // If this hook is defined and set as true all extensions will be included in
+  // the cache. Alternatively return a function which picks the extensions to cache.
+  storeExtensions?(requestContext: GraphQLRequestContext<TContext>): ValueOrPromise<any>;
 }
 
 enum SessionMode {
@@ -119,6 +112,7 @@ interface CacheValue {
   data: Record<string, any>;
   cachePolicy: Required<CacheHint>;
   cacheTime: number; // epoch millis, used to calculate Age header
+  extensions: Record<string, any>;
 }
 
 type CacheKey = BaseCacheKey & ContextualCacheKey;
@@ -128,31 +122,20 @@ function cacheKeyString(key: CacheKey) {
 }
 
 function isGraphQLQuery(requestContext: GraphQLRequestContext<any>) {
-  return (
-    requestContext.operation && requestContext.operation.operation === 'query'
-  );
+  return requestContext.operation && requestContext.operation.operation === 'query';
 }
 
-export default function plugin(
-  options: Options = Object.create(null),
-): ApolloServerPlugin {
+export default function plugin(options: Options = Object.create(null)): ApolloServerPlugin {
   return {
-    requestDidStart(
-      outerRequestContext: GraphQLRequestContext<any>,
-    ): GraphQLRequestListener<any> {
-      const cache = new PrefixingKeyValueCache(
-        options.cache || outerRequestContext.cache!,
-        'fqc:',
-      );
+    requestDidStart(outerRequestContext: GraphQLRequestContext<any>): GraphQLRequestListener<any> {
+      const cache = new PrefixingKeyValueCache(options.cache || outerRequestContext.cache!, 'fqc:');
 
       let sessionId: string | null = null;
       let baseCacheKey: BaseCacheKey | null = null;
       let age: number | null = null;
 
       return {
-        async responseForOperation(
-          requestContext,
-        ): Promise<GraphQLResponse | null> {
+        async responseForOperation(requestContext): Promise<GraphQLResponse | null> {
           requestContext.metrics.responseCacheHit = false;
 
           if (!isGraphQLQuery(requestContext)) {
@@ -177,7 +160,10 @@ export default function plugin(
             requestContext.overallCachePolicy = value.cachePolicy;
             requestContext.metrics.responseCacheHit = true;
             age = Math.round((+new Date() - value.cacheTime) / 1000);
-            return { data: value.data };
+            return {
+              data: value.data,
+              extensions: value.extensions,
+            };
           }
 
           // Call hooks. Save values which will be used in willSendResponse as well.
@@ -200,10 +186,7 @@ export default function plugin(
           // Note that we set up sessionId and baseCacheKey before doing this
           // check, so that we can still write the result to the cache even if
           // we are told not to read from the cache.
-          if (
-            options.shouldReadFromCache &&
-            !options.shouldReadFromCache(requestContext)
-          ) {
+          if (options.shouldReadFromCache && !options.shouldReadFromCache(requestContext)) {
             return null;
           }
 
@@ -235,10 +218,7 @@ export default function plugin(
             }
             return;
           }
-          if (
-            options.shouldWriteToCache &&
-            !options.shouldWriteToCache(requestContext)
-          ) {
+          if (options.shouldWriteToCache && !options.shouldWriteToCache(requestContext)) {
             return;
           }
 
@@ -265,19 +245,25 @@ export default function plugin(
 
           const data = response.data!;
 
+          let extensions: any;
+
+          if (options.storeExtensions) {
+            if (typeof options.storeExtensions === 'function') {
+              extensions = await options.storeExtensions(requestContext);
+            } else {
+              extensions = response.extensions;
+            }
+          }
+
           // We're pretty sure that any path that calls willSendResponse with a
           // non-error response will have already called our execute hook above,
           // but let's just double-check that, since accidentally ignoring
           // sessionId could be a big security hole.
           if (!baseCacheKey) {
-            throw new Error(
-              'willSendResponse called without error, but execute not called?',
-            );
+            throw new Error('willSendResponse called without error, but execute not called?');
           }
 
-          function cacheSetInBackground(
-            contextualCacheKeyFields: ContextualCacheKey,
-          ) {
+          function cacheSetInBackground(contextualCacheKeyFields: ContextualCacheKey) {
             const key = cacheKeyString({
               ...baseCacheKey!,
               ...contextualCacheKeyFields,
@@ -286,6 +272,7 @@ export default function plugin(
               data,
               cachePolicy: overallCachePolicy!,
               cacheTime: +new Date(),
+              ...(extensions && { extensions }),
             };
             const serializedValue = JSON.stringify(value);
             // Note that this function converts key and response to strings before
@@ -321,9 +308,7 @@ export default function plugin(
           } else {
             cacheSetInBackground({
               sessionMode:
-                sessionId === null
-                  ? SessionMode.NoSession
-                  : SessionMode.AuthenticatedPublic,
+                sessionId === null ? SessionMode.NoSession : SessionMode.AuthenticatedPublic,
             });
           }
         },
