@@ -145,6 +145,33 @@ The example above validates the user's token that is sent with the first initial
 
 In case of an authentication error, the Promise will be rejected, which prevents the client's connection.
 
+## Track user over connection
+
+There is way to pass data from `onConnect` context parameter to `onDisconnect` context. It is useful in case of tracking online users. Example below demostrate traking user by id using jwt token.
+
+```
+subscriptions: {
+  onConnect: (connectionParams) => {
+    const accessToken = connectionParams['Authorization'];
+    let user;
+    try {
+      // jwt magic
+      user = this.jwtService.verifyToken(accessToken, 'accessToken');
+
+      console.log(`user with id ${user.id} connected.`);
+
+      return { user };
+    } catch (e) {
+      // do not fire error to allow unauthorized access to subscriptions
+    }
+  },
+  onDisconnect: async (_, context) => {
+    const initialContext = await context.initPromise;
+    console.log(`user with id ${initialContext.user.id} disconnected.`);
+  },
+}
+```
+
 ## Subscription Filters
 
 Sometimes a client will want to filter out specific events based on context and arguments.
