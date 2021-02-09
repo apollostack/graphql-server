@@ -1,7 +1,7 @@
 {
   "name": "apollo-server-cloudflare",
   "version": "2.19.2",
-  "description": "Production-ready Node.js GraphQL server for Cloudflare workers",
+  "description": "Production-ready GraphQL server for Cloudflare workers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
