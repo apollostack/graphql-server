@@ -15,7 +15,7 @@ async function createApp(options: CreateAppOptions = {}) {
   );
 
   app.register(server.createHandler());
-  await app.listen();
+  await app.listen(3000);
 
   return app.server;
 }
@@ -24,14 +24,14 @@ async function destroyApp(app: Server) {
   if (!app || !app.close) {
     return;
   }
-  await new Promise(resolve => app.close(resolve));
+  await new Promise((resolve) => app.close(resolve));
 }
 
 describe('fastifyApollo', () => {
-  it('throws error if called without schema', function() {
-    expect(() => new ApolloServer(undefined as GraphQLOptions)).toThrow(
-      'ApolloServer requires options.',
-    );
+  it('throws error if called without schema', function () {
+    expect(
+      () => new ApolloServer((undefined as unknown) as GraphQLOptions),
+    ).toThrow('ApolloServer requires options.');
   });
 });
 

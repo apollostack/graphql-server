@@ -3,31 +3,29 @@ import {
   GraphQLOptions,
   runHttpQuery,
 } from 'apollo-server-core';
-import { FastifyReply, FastifyRequest, RequestHandler } from 'fastify';
-import { IncomingMessage, OutgoingMessage } from 'http';
+import { FastifyReply, FastifyRequest, RouteHandlerMethod } from 'fastify';
 import { ValueOrPromise } from 'apollo-server-types';
 
 export async function graphqlFastify(
   options: (
-    req?: FastifyRequest<IncomingMessage>,
-    res?: FastifyReply<OutgoingMessage>,
+    req?: FastifyRequest,
+    res?: FastifyReply,
   ) => ValueOrPromise<GraphQLOptions>,
-): Promise<RequestHandler<IncomingMessage, OutgoingMessage>> {
+): Promise<RouteHandlerMethod> {
   if (!options) {
     throw new Error('Apollo Server requires options.');
   }
 
-  return async (
-    request: FastifyRequest<IncomingMessage>,
-    reply: FastifyReply<OutgoingMessage>,
-  ) => {
+  return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { graphqlResponse, responseInit } = await runHttpQuery(
         [request, reply],
         {
-          method: request.req.method as string,
+          method: request.raw.method as string,
           options,
-          query: request.req.method === 'POST' ? request.body : request.query,
+          query: (request.raw.method === 'POST'
+            ? request.body
+            : request.query) as Record<string, any>,
           request: convertNodeHttpToRequest(request.raw),
         },
       );
@@ -47,7 +45,7 @@ export async function graphqlFastify(
       }
 
       if (error.headers) {
-        Object.keys(error.headers).forEach(header => {
+        Object.keys(error.headers).forEach((header) => {
           reply.header(header, error.headers[header]);
         });
       }
