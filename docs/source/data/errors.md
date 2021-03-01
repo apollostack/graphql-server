@@ -120,7 +120,7 @@ new ApolloError(message, code, additionalProperties);
 
 ### For the client response
 
-The Apollo Server constructor accepts a `formatError` function that is run on each error passed back to the client. This can be used to mask errors as well as for logging.
+The Apollo Server constructor accepts a `formatError` function that is run on each error passed back to the client. This can be used to mask errors as well as for logging. Note that in production, you must `debug: true` when creating the server; otherwise, `formatError` will only send `INTERNAL_SERVER_ERROR`s.
 
 > Note that while this changes the error which is sent to the client, it doesn't change the error that is sent to Apollo Studio.  See the `rewriteError` function in [For Apollo Studio reporting](#for-apollo-studio-reporting) below if this behavior is desired.
 
@@ -130,6 +130,7 @@ This example demonstrates throwing a different error when the error's message st
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  debug: true,
   formatError: (err) => {
     // Don't give the specific errors to the client.
     if (err.message.startsWith("Database Error: ")) {
