@@ -174,6 +174,7 @@ Suppose your resolver returns a `Date` object but you want to return a formatted
 
 ```js
 const { ApolloServer, gql, SchemaDirectiveVisitor } = require("apollo-server");
+const { defaultFieldResolver } = require("graphql");
 
 const typeDefs = gql`
   directive @date(format: String) on FIELD_DEFINITION
@@ -295,6 +296,7 @@ Here's how you might make sure `translate` is used to localize the `greeting` fi
 
 ```js
 const { ApolloServer, gql, SchemaDirectiveVisitor } = require("apollo-server");
+const { defaultFieldResolver } = require("graphql");
 
 const typeDefs = gql`
   directive @intl on FIELD_DEFINITION
@@ -358,6 +360,7 @@ What makes this example tricky is that the `OBJECT` version of the directive nee
 
 ```js
 const { ApolloServer, gql, SchemaDirectiveVisitor } = require("apollo-server");
+const { defaultFieldResolver } = require("graphql");
 
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
