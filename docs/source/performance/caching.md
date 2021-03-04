@@ -50,7 +50,7 @@ Hints on fields override hints specified on the target type. For example, the hi
 
 See [below](#setting-a-default-maxage) for the semantics of fields which don't have `maxAge` set on them (statically or dynamically).
 
-`@cacheControl` can specify `maxAge` (in seconds, like in an HTTP `Cache-Control` header) and `scope`, which can be `PUBLIC` (the default) or `PRIVATE`.
+`@cacheControl` can specify `maxAge` (in seconds, like in an HTTP `Cache-Control` header) and `scope`, which can be `PUBLIC` (the default) or `PRIVATE`. This is analogous to the http Cache-Control where `PRIVATE` means the request is only cacheable on a client browser and not any other intermediate cache.
 
 
 ### Adding cache hints dynamically in your resolvers
