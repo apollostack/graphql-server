@@ -7,6 +7,14 @@ import { Config } from 'apollo-server-core';
 import url from 'url';
 import { IncomingMessage, ServerResponse } from 'http';
 
+const healthCheckRequest = {
+  method: 'GET',
+  body: null,
+  url: '/.well-known/apollo/server-health',
+  query: null,
+  headers: {},
+};
+
 const createAzureFunction = (options: CreateAppOptions = {}) => {
   const server = new ApolloServer(
     (options.graphqlOptions as Config) || { schema: Schema },
@@ -74,7 +82,7 @@ describe('integration:AzureFunctions', () => {
     const request = {
       method: 'GET',
       body: null,
-      path: '/graphql',
+      url: '/graphql',
       query: query,
       headers: {},
     };
@@ -119,7 +127,7 @@ describe('integration:AzureFunctions', () => {
     const request = {
       method: 'OPTIONS',
       body: null,
-      path: '/graphql',
+      url: '/graphql',
       query: null,
       headers: {},
     };
@@ -141,7 +149,7 @@ describe('integration:AzureFunctions', () => {
     const request = {
       method: 'GET',
       body: null,
-      path: '/',
+      url: '/',
       query: null,
       headers: {
         Accept: 'text/html',
@@ -156,5 +164,79 @@ describe('integration:AzureFunctions', () => {
       },
     };
     handler(context as any, request as any);
+  });
+
+  describe('healthchecks', () => {
+    it('creates a healthcheck endpoint', async () => {
+      const server = new ApolloServer({ schema: Schema });
+      const handler = server.createHandler({});
+
+      const context: any = {};
+      const p = new Promise((resolve, reject) => {
+        context.done = (error: Error, result: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        };
+      });
+
+      handler(context as any, healthCheckRequest as any);
+      const result: any = await p;
+      expect(result.statusCode).toEqual(200);
+      expect(result.body).toEqual(JSON.stringify({ status: 'pass' }));
+      expect(result.headers['Content-Type']).toEqual('application/json');
+    });
+
+    it('provides a callback for the healthcheck', async () => {
+      const server = new ApolloServer({ schema: Schema });
+      const handler = server.createHandler({
+        onHealthCheck: async () => {
+          return new Promise((resolve) => {
+            return resolve("Success!");
+          });
+        }
+      });
+
+      const context: any = {};
+      const p = new Promise((resolve, reject) => {
+        context.done = (error: Error, result: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        };
+      });
+
+      handler(context as any, healthCheckRequest as any);
+      const result: any = await p;
+      expect(result.statusCode).toEqual(200);
+      expect(result.body).toEqual(JSON.stringify({ status: 'pass' }));
+      expect(result.headers['Content-Type']).toEqual('application/json');
+    });
+
+    it('returns a 503 if healthcheck fails', async () => {
+      const server = new ApolloServer({ schema: Schema });
+      const handler = server.createHandler({
+        onHealthCheck: async () => {
+          return new Promise(() => {
+            throw new Error("Failed to connect!");
+          });
+        }
+      });
+
+      const context = {
+        done(error, result) {
+          if (error) throw error;
+          expect(result.statusCode).toEqual(503);
+          expect(result.body).toEqual(JSON.stringify({ status: 'fail' }));
+          expect(result.headers['Content-Type']).toEqual('application/json');
+        },
+      };
+
+      handler(context as any, healthCheckRequest as any);
+    });
   });
 });
