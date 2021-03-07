@@ -110,7 +110,7 @@ export class ApolloServer extends ApolloServerBase {
         return;
       }
 
-      if (req.url.endsWith('/.well-known/apollo/server-health')) {
+      if (req.url?.endsWith('/.well-known/apollo/server-health')) {
         const successfulResponse = {
           body: JSON.stringify({ status: 'pass' }),
           statusCode: 200,
