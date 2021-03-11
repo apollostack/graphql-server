@@ -246,7 +246,7 @@ export default (createApp: CreateAppFunc, destroyApp?: DestroyAppFunc) => {
           .post('/graphql')
           .send();
         return req.then(res => {
-          expect(res.status).toEqual(500);
+          expect(res.status).toEqual(400);
           expect(res.error.text).toMatch('POST body missing.');
         });
       });

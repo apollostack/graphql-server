@@ -27,7 +27,7 @@ export function graphqlCloudFunction(
   const graphqlHandler: any = (req: Request, res: Response): void => {
     const hasPostBody = req.body && Object.keys(req.body).length > 0;
     if (req.method === 'POST' && !hasPostBody) {
-      res.status(500).send('POST body missing.');
+      res.status(400).send('POST body missing.');
       return;
     }
 
@@ -49,7 +49,7 @@ export function graphqlCloudFunction(
       },
       (error: HttpQueryError) => {
         if ('HttpQueryError' !== error.name) {
-          res.status(500).send(error);
+          res.status(400).send(error);
           return;
         }
         res

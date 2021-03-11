@@ -46,7 +46,7 @@ export function graphqlLambda(
     if (event.httpMethod === 'POST' && !body) {
       return callback(null, {
         body: 'POST body missing.',
-        statusCode: 500,
+        statusCode: 400,
       });
     }
 

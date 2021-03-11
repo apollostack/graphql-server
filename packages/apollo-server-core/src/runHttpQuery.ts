@@ -203,7 +203,7 @@ export async function processHTTPRequest<TContext>(
     case 'POST':
       if (!httpRequest.query || Object.keys(httpRequest.query).length === 0) {
         throw new HttpQueryError(
-          500,
+          400,
           'POST body missing. Did you forget use body-parser middleware?',
         );
       }

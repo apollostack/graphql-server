@@ -28,7 +28,7 @@ export function graphqlAzureFunction(
     if (request.method === 'POST' && !request.body) {
       callback(null, {
         body: 'POST body missing.',
-        status: 500,
+        status: 400,
       });
       return;
     }
