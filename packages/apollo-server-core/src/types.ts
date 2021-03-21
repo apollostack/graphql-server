@@ -13,10 +13,7 @@ import {
   GraphQLRequestContextExecutionDidStart,
   ApolloConfigInput,
 } from 'apollo-server-types';
-import { ConnectionContext } from 'subscriptions-transport-ws';
-// The types for `ws` use `export = WebSocket`, so we'll use the
-// matching `import =` to bring in its sole export.
-import WebSocket = require('ws');
+import { ServerOptions as _SubscriptionServerOptions } from 'subscriptions-transport-ws';
 import { GraphQLExtension } from 'graphql-extensions';
 export { GraphQLExtension } from 'graphql-extensions';
 
@@ -45,16 +42,16 @@ export type ContextFunction<FunctionParams = any, ProducedContext = object> = (
 // factory function that returns `ApolloServerPlugin`.
 export type PluginDefinition = ApolloServerPlugin | (() => ApolloServerPlugin);
 
-export interface SubscriptionServerOptions {
-  path: string;
-  keepAlive?: number;
-  onConnect?: (
-    connectionParams: Object,
-    websocket: WebSocket,
-    context: ConnectionContext,
-  ) => any;
-  onDisconnect?: (websocket: WebSocket, context: ConnectionContext) => any;
-}
+export type SubscriptionServerOptions = Omit<
+  _SubscriptionServerOptions & { path: string },
+  | 'schema'
+  | 'rootValue'
+  | 'execute'
+  | 'subscribe'
+  | 'validationRules'
+  | 'onOperation'
+  | 'onOperationComplete'
+>
 
 type BaseConfig = Pick<
   GraphQLOptions<Context>,

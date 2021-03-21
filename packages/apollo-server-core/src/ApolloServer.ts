@@ -644,10 +644,9 @@ export class ApolloServerBase {
     }
     const { SubscriptionServer } = require('subscriptions-transport-ws');
     const {
-      onDisconnect,
       onConnect,
-      keepAlive,
       path,
+      ...restSubscriptionServerOptions
     } = this.subscriptionServerOptions;
 
     // TODO: This shouldn't use this.schema, as it is deprecated in favor of the schemaDerivedData promise.
@@ -659,13 +658,13 @@ export class ApolloServerBase {
 
     this.subscriptionServer = SubscriptionServer.create(
       {
+        ...restSubscriptionServerOptions,
         schema,
         execute,
         subscribe,
         onConnect: onConnect
           ? onConnect
           : (connectionParams: Object) => ({ ...connectionParams }),
-        onDisconnect: onDisconnect,
         onOperation: async (
           message: { payload: any },
           connection: ExecutionParams,
@@ -698,7 +697,6 @@ export class ApolloServerBase {
 
           return { ...connection, context };
         },
-        keepAlive,
         validationRules: this.requestOptions.validationRules
       },
       server instanceof NetServer || server instanceof TlsServer
