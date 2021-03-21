@@ -15,9 +15,14 @@ export interface ServerRegistration {
   path?: string;
   disableHealthCheck?: boolean;
   onHealthCheck?: (req: MicroRequest) => Promise<any>;
+  requestBodyLimit?: string | number;
+  requestBodyEncoding?: string;
 }
 
 export class ApolloServer extends ApolloServerBase {
+  private requestBodyLimit?: ServerRegistration['requestBodyLimit'];
+  private requestBodyEncoding?: ServerRegistration['requestBodyEncoding'];
+
   // Extract Apollo Server options from the request.
   async createGraphQLServerOptions(
     req: MicroRequest,
@@ -32,7 +37,12 @@ export class ApolloServer extends ApolloServerBase {
     path,
     disableHealthCheck,
     onHealthCheck,
+    requestBodyLimit,
+    requestBodyEncoding,
   }: ServerRegistration = {}) {
+    this.requestBodyLimit = requestBodyLimit;
+    this.requestBodyEncoding = requestBodyEncoding;
+
     // We'll kick off the `willStart` right away, so hopefully it'll finish
     // before the first request comes in.
     const promiseWillStart = this.willStart();
@@ -157,6 +167,9 @@ export class ApolloServer extends ApolloServerBase {
     if (url === this.graphqlPath) {
       const graphqlHandler = graphqlMicro(() => {
         return this.createGraphQLServerOptions(req, res);
+      }, {
+        requestBodyLimit: this.requestBodyLimit,
+        requestBodyEncoding: this.requestBodyEncoding,
       });
       const responseData = await graphqlHandler(req, res);
       send(res, 200, responseData);

@@ -9,6 +9,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 
 import { MicroRequest } from './types';
 import { ValueOrPromise } from 'apollo-server-types';
+import { ServerRegistration } from './ApolloServer';
 
 // Allowed Micro Apollo Server options.
 export interface MicroGraphQLOptionsFunction {
@@ -22,19 +23,26 @@ function setHeaders(res: ServerResponse, headers: Object): void {
   });
 }
 
+export interface MicroOptions
+  extends Pick<
+    ServerRegistration,
+    'requestBodyLimit' | 'requestBodyEncoding'
+  > {}
+
 // Build and return an async function that passes incoming GraphQL requests
 // over to Apollo Server for processing, then fires the results/response back
 // using Micro's `send` functionality.
 export function graphqlMicro(
   options: GraphQLOptions | MicroGraphQLOptionsFunction,
+  microOptions: MicroOptions = {},
 ): RequestHandler {
   if (!options) {
     throw new Error('Apollo Server requires options.');
   }
 
-  if (arguments.length > 1) {
+  if (arguments.length > 2) {
     throw new Error(
-      `Apollo Server expects exactly one argument, got ${arguments.length}`,
+      `Apollo Server expects one or two arguments, got ${arguments.length}`,
     );
   }
 
@@ -43,7 +51,11 @@ export function graphqlMicro(
     try {
       query =
         req.method === 'POST'
-          ? req.filePayload || (await json(req))
+          ? req.filePayload ||
+            (await json(req, {
+              limit: microOptions.requestBodyLimit,
+              encoding: microOptions.requestBodyEncoding,
+            }))
           : url.parse(req.url, true).query;
     } catch (error) {
       // Do nothing; `query` stays `undefined`
