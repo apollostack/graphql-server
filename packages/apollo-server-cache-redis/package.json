@@ -22,5 +22,8 @@
     "apollo-server-env": "file:../apollo-server-env",
     "dataloader": "^2.0.0",
     "ioredis": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.17.4"
   }
 }

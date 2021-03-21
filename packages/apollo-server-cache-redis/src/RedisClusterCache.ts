@@ -1,5 +1,6 @@
 import { KeyValueCache, KeyValueCacheSetOptions } from 'apollo-server-caching';
-import Redis, {
+import {
+  Cluster,
   ClusterOptions,
   ClusterNode,
   Redis as RedisInstance,
@@ -7,19 +8,24 @@ import Redis, {
 import DataLoader from 'dataloader';
 
 export class RedisClusterCache implements KeyValueCache {
-  readonly client: any;
+  readonly client: Cluster;
   readonly defaultSetOptions: KeyValueCacheSetOptions = {
     ttl: 300,
   };
 
   private loader: DataLoader<string, string | null>;
 
-  constructor(nodes: ClusterNode[], options?: ClusterOptions) {
-    const client = this.client = new Redis.Cluster(nodes, options);
+  constructor(value: ClusterNode[] | Cluster, options?: ClusterOptions) {
+    if (value instanceof Cluster) {
+      this.client = value;
+    } else {
+      this.client = new Cluster(value as ClusterNode[], options);
+    }
+    this.client.mget
 
-    this.loader = new DataLoader(
+    this.loader = new DataLoader<string, string | null>(
       (keys = []) =>
-        Promise.all(keys.map(key => client.get(key).catch(() => null))),
+        Promise.all(keys.map(key => this.client.get(key).catch(() => null))),
       { cache: false },
     );
   }
@@ -49,7 +55,7 @@ export class RedisClusterCache implements KeyValueCache {
   }
 
   async delete(key: string): Promise<boolean> {
-    return await this.client.del(key);
+    return await this.client.del(key) > 0;
   }
 
   async flush(): Promise<void> {
