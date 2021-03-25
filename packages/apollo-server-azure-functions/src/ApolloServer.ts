@@ -115,7 +115,7 @@ export class ApolloServer extends ApolloServerBase {
           body: JSON.stringify({ status: 'pass' }),
           statusCode: 200,
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/health+json',
             ...corsHeaders,
           },
         };
@@ -129,7 +129,7 @@ export class ApolloServer extends ApolloServerBase {
                 body: JSON.stringify({ status: 'fail' }),
                 statusCode: 503,
                 headers: {
-                  'Content-Type': 'application/json',
+                  'Content-Type': 'application/health+json',
                   ...corsHeaders,
                 },
               });
