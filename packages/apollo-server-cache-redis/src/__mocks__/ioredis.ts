@@ -1,38 +1,54 @@
-const IORedis = jest.genMockFromModule('ioredis');
+class Redis {
+  private keyValue = {};
+  private timeouts = new Set<NodeJS.Timer>();
 
-const keyValue = {};
-
-const deleteKey = key => {
-  delete keyValue[key];
-  return Promise.resolve(true);
-};
-
-const getKey = key => {
-  if (keyValue[key]) {
-    return Promise.resolve(keyValue[key].value);
+  async del(key: string) {
+    const keysDeleted = this.keyValue.hasOwnProperty(key) ? 1 : 0;
+    delete this.keyValue[key];
+    return keysDeleted;
   }
 
-  return Promise.resolve(undefined);
-};
-
-const mGetKey = (key, cb) => getKey(key).then(val => [val]);
-
-const setKey = (key, value, type, ttl) => {
-  keyValue[key] = {
-    value,
-    ttl,
-  };
-  if (ttl) {
-    setTimeout(() => {
-      delete keyValue[key];
-    }, ttl * 1000);
+  async get(key: string) {
+    if (this.keyValue[key]) {
+      return this.keyValue[key].value;
+    }
   }
-  return Promise.resolve(true);
-};
 
-IORedis.prototype.del.mockImplementation(deleteKey);
-IORedis.prototype.get.mockImplementation(getKey);
-IORedis.prototype.mget.mockImplementation(mGetKey);
-IORedis.prototype.set.mockImplementation(setKey);
+  async mget(...keys: string[]) {
+    return keys.map((key) => {
+      if (this.keyValue[key]) {
+        return this.keyValue[key].value;
+      }
+    });
+  }
 
-export default IORedis;
+  async set(key, value, type, ttl) {
+    this.keyValue[key] = {
+      value,
+      ttl,
+    };
+    if (ttl) {
+      const timeout = setTimeout(() => {
+        this.timeouts.delete(timeout);
+        delete this.keyValue[key];
+      }, ttl * 1000);
+      this.timeouts.add(timeout);
+    }
+    return true;
+  }
+
+  nodes() {
+    return [];
+  }
+
+  async flushdb() {}
+
+  async quit() {
+    this.timeouts.forEach((t) => clearTimeout(t));
+  }
+}
+
+// Use the same mock as Redis.Cluster.
+(Redis as any).Cluster = Redis;
+
+export default Redis;

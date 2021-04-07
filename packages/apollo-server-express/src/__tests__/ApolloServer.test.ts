@@ -36,8 +36,11 @@ describe('apollo-server-express', () => {
   let server;
   let httpServer;
   testApolloServer(
-    async options => {
+    async (options, suppressStartCall?: boolean) => {
       server = new ApolloServer(options);
+      if (!suppressStartCall) {
+        await server.start();
+      }
       const app = express();
       server.applyMiddleware({ app });
       httpServer = await new Promise<http.Server>(resolve => {
@@ -46,8 +49,8 @@ describe('apollo-server-express', () => {
       return createServerInfo(server, httpServer);
     },
     async () => {
-      if (server) await server.stop();
       if (httpServer && httpServer.listening) await httpServer.close();
+      if (server) await server.stop();
     },
   );
 });

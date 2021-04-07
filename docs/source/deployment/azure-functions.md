@@ -64,7 +64,7 @@ npm init -y
 npm install apollo-server-azure-functions graphql
 ```
 
-Copy the code below and paste at you **index.js** file.
+Copy the code below and paste in your **index.js** file.
 
 ```javascript
 const { ApolloServer, gql } = require('apollo-server-azure-functions');
@@ -84,7 +84,6 @@ const resolvers = {
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });
-
 exports.graphqlHandler = server.createHandler();
 ```
 

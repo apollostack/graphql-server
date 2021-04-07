@@ -14,30 +14,33 @@ npm install apollo-server-koa graphql
 const Koa = require('koa');
 const { ApolloServer, gql } = require('apollo-server-koa');
 
-// Construct a schema, using GraphQL schema language
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
+async function startApolloServer() {
+  // Construct a schema, using GraphQL schema language
+  const typeDefs = gql`
+    type Query {
+      hello: String
+    }
+  `;
 
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-  },
-};
+  // Provide resolver functions for your schema fields
+  const resolvers = {
+    Query: {
+      hello: () => 'Hello world!',
+    },
+  };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
 
-const app = new Koa();
-server.applyMiddleware({ app });
-// alternatively you can get a composed middleware from the apollo server
-// app.use(server.getMiddleware());
+  const app = new Koa();
+  server.applyMiddleware({ app });
+  // alternatively you can get a composed middleware from the apollo server
+  // app.use(server.getMiddleware());
 
-app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`),
-);
+  await new Promise(resolve => app.listen({ port: 4000 }, resolve));
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  return { server, app };
+}
 ```
 
 ## Principles

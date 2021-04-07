@@ -33,14 +33,13 @@ export class ApolloServer extends ApolloServerBase {
     disableHealthCheck,
     onHealthCheck,
   }: ServerRegistration = {}) {
-    // We'll kick off the `willStart` right away, so hopefully it'll finish
-    // before the first request comes in.
-    const promiseWillStart = this.willStart();
+    // In case the user didn't bother to call and await the `start` method, we
+    // kick it off in the background (with any errors getting logged
+    // and also rethrown from graphQLServerOptions during later requests).
+    this.ensureStarting();
 
     return async (req, res) => {
       this.graphqlPath = path || '/graphql';
-
-      await promiseWillStart;
 
       if (typeof processFileUploads === 'function') {
         await this.handleFileUploads(req, res);

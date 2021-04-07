@@ -1,7 +1,7 @@
 This is the Azure functions integration of GraphQL Server. Apollo Server is a community-maintained open-source GraphQL server that works with many Node.js HTTP server frameworks. [Read the docs](https://www.apollographql.com/docs/apollo-server/v2). [Read the CHANGELOG](https://github.com/apollographql/apollo-server/blob/main/CHANGELOG.md).
 
 ```shell
-npm install apollo-server-azure-functions
+npm install apollo-server-azure-functions graphql
 ```
 
 ## Writing azure function

@@ -82,7 +82,7 @@ ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38
 2. Send a followup request that includes both the query string _and_ its hash, like so:
 
     ```shell
-    curl -g 'http://localhost:4000/?query={__typename}&extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
+    curl -g 'http://localhost:4000/graphql?query={__typename}&extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
     ```
 
     This time, the server persists the query string and then responds with the query result as we'd expect.
@@ -217,20 +217,22 @@ const server = new ApolloServer({
 ### Redis (single instance)
 
 ```shell
-$ npm install apollo-server-cache-redis
+$ npm install apollo-server-cache-redis ioredis
 ```
 
 ```javascript
-const { RedisCache } = require('apollo-server-cache-redis');
+const { BaseRedisCache } = require('apollo-server-cache-redis');
+const Redis = require('ioredis');
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   // highlight-start
   persistedQueries: {
-    cache: new RedisCache({
-      host: 'redis-server',
-      // Options are passed through to the Redis client
+    cache: new BaseRedisCache({
+      client: new Redis({
+        host: 'redis-server',
+      }),
     }),
   },
   // highlight-end
@@ -240,25 +242,27 @@ const server = new ApolloServer({
 ### Redis (Sentinel)
 
 ```shell
-$ npm install apollo-server-cache-redis
+$ npm install apollo-server-cache-redis ioredis
 ```
 
 ```javascript
-const { RedisCache } = require('apollo-server-cache-redis');
+const { BaseRedisCache } = require('apollo-server-cache-redis');
+const Redis = require('ioredis');
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   // highlight-start
   persistedQueries: {
-    cache: new RedisCache({
-      sentinels: [{
-        host: 'sentinel-host-01',
-        port: 26379
-      }],
-      password: 'my_password',
-      name: 'service_name',
-      // Options are passed through to the Redis client
+    cache: new BaseRedisCache({
+      client: new Redis({
+        sentinels: [{
+          host: 'sentinel-host-01',
+          port: 26379
+         }],
+        password: 'my_password',
+        name: 'service_name',
+      }),
     }),
   },
   // highlight-end
@@ -268,26 +272,30 @@ const server = new ApolloServer({
 ### Redis Cluster
 
 ```shell
-$ npm install apollo-server-cache-redis
+$ npm install apollo-server-cache-redis ioredis
 ```
 
 ```javascript
-const { RedisClusterCache } = require('apollo-server-cache-redis');
+const { BaseRedisCache } = require('apollo-server-cache-redis');
+const Redis = require('ioredis');
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   // highlight-start
   persistedQueries: {
-    cache: new RedisClusterCache(
-      [{
-        host: 'redis-node-01-host',
-        // Options are passed through to the Redis cluster client
-      }],
-      {
-        // Cluster options are passed through to the Redis cluster client
-      }
-    ),
+    cache: new BaseRedisCache({
+      // Note that this uses the "clusterClient" option rather than "client",
+      // which avoids using the mget command which doesn't work in cluster mode.
+      clusterClient: new Redis.Cluster(
+        [{
+          host: 'redis-node-01-host',
+        }],
+        {
+          // Other Redis cluster client options
+        }
+      ),
+    }),
   },
   // highlight-end
 });

@@ -2,11 +2,6 @@
   "extends": [
     "apollo-open-source"
   ],
-  "force": {
-    "constraints": {
-      "node": "< 15.0.0"
-    }
-  },
   "dependencyDashboard": true,
   "automerge": false,
   "packageRules": [

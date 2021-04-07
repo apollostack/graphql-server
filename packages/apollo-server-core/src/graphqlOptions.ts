@@ -50,9 +50,9 @@ export interface GraphQLServerOptions<
   validationRules?: Array<(context: ValidationContext) => any>;
   executor?: GraphQLExecutor;
   formatResponse?: (
-    response: GraphQLResponse | null,
+    response: GraphQLResponse,
     requestContext: GraphQLRequestContext<TContext>,
-  ) => GraphQLResponse
+  ) => GraphQLResponse | null;
   fieldResolver?: GraphQLFieldResolver<any, TContext>;
   debug?: boolean;
   tracing?: boolean;

@@ -226,75 +226,18 @@ Use `withFilter` to make sure clients get exactly the subscription updates they 
 
 ## Basic runnable example
 
-This example server exposes one subscription (`numberIncremented`) that returns an integer that's incremented on the server every second. The example requires only the `apollo-server` library.
+An example server is available on [GitHub](https://github.com/apollographql/docs-examples/blob/main/server-subscriptions/index.js) and CodeSandbox:
+
+<a href="https://codesandbox.io/s/github/apollographql/docs-examples/tree/main/server-subscriptions?fontsize=14&hidenavigation=1&theme=dark">
+  <img alt="Edit server-subscriptions" src="https://codesandbox.io/static/img/play-codesandbox.svg"></img>
+</a>
+
+
+The server exposes one subscription (`numberIncremented`) that returns an integer that's incremented on the server every second. The example requires only the `apollo-server` library.
 
 After you start up this server, you can test out running a subscription with the Apollo Studio Explorer or GraphQL Playground, as described in the [full-stack tutorial](https://www.apollographql.com/docs/tutorial/schema/#explore-your-schema). You'll see the subscription's value update every second.
 
 > In the Apollo Studio Explorer, you must specify your server's subscription endpoint (`ws://localhost:4000/subscriptions`) in the **Explorer Settings** tab.
-
-<ExpansionPanel title="Click to expand">
-
-```js:title=index.js
-const { ApolloServer, PubSub, gql } = require('apollo-server');
-const pubsub = new PubSub();
-const PORT = 4000;
-
-// Schema definition
-const typeDefs = gql`
-  type Query {
-    currentNumber: Int
-  }
-
-  type Subscription {
-    numberIncremented: Int
-  }
-`;
-
-// Resolver map
-const resolvers = {
-  Query: {
-    currentNumber() {
-      return currentNumber;
-    }
-  },
-  Subscription: {
-    numberIncremented: {
-      subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
-    },
-  }
-};
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  subscriptions: {
-    path: '/subscriptions',
-    onConnect: (connectionParams, webSocket, context) => {
-      console.log('Client connected');
-    },
-    onDisconnect: (webSocket, context) => {
-      console.log('Client disconnected')
-    },
-  },
-});
-
-let currentNumber = 0;
-function incrementNumber() {
-  currentNumber++;
-  pubsub.publish('NUMBER_INCREMENTED', { numberIncremented: currentNumber });
-  setTimeout(incrementNumber, 1000);
-}
-
-server.listen().then(({ url }) => {
-  console.log(`🚀 Subscription endpoint ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
-  console.log('Query at studio.apollographql.com/dev')
-});
-
-// Start incrementing
-incrementNumber();
-```
-
-</ExpansionPanel>
 
 ## Operation context
 
@@ -468,7 +411,6 @@ In case of an authentication error, the Promise will be rejected, which prevents
 
 You can use subscriptions with any of Apollo Server's supported [middleware integrations](../integrations/middleware/). To do so, you call `installSubscriptionHandlers` on your `ApolloServer` instance.
 
-
 This example enables subscriptions for an Express server that uses `apollo-server-express`:
 
 ```js
@@ -476,20 +418,22 @@ const http = require('http');
 const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 
-const PORT = 4000;
-const app = express();
-const server = new ApolloServer({ typeDefs, resolvers });
+async function startApolloServer() {
+  const PORT = 4000;
+  const app = express();
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
+  server.applyMiddleware({app})
 
-server.applyMiddleware({app})
+  const httpServer = http.createServer(app);
+  server.installSubscriptionHandlers(httpServer); // highlight-line
 
-const httpServer = http.createServer(app);
-server.installSubscriptionHandlers(httpServer); // highlight-line
-
-// Make sure to call listen on httpServer, NOT on app.
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
-  console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
-})
+  // Make sure to call listen on httpServer, NOT on app.
+  await new Promise(resolve => httpServer.listen(PORT, resolve));
+  console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+  console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`);
+  return { server, app, httpServer };
+}
 ```
 
 ## Production `PubSub` libraries
@@ -507,5 +451,6 @@ The following are community-created `PubSub` libraries for popular event-publish
 - [Kafka](https://github.com/ancashoria/graphql-kafka-subscriptions)
 - [Postgres](https://github.com/GraphQLCollege/graphql-postgres-subscriptions)
 - [Google Cloud Firestore](https://github.com/MrBoolean/graphql-firestore-subscriptions)
+- [Ably Realtime](https://github.com/ably-labs/graphql-ably-pubsub)
 
 If none of these libraries fits your use case, you can also create your own `PubSubEngine` subclass. If you create a new open-source library, click **Edit on GitHub** to let us know about it!

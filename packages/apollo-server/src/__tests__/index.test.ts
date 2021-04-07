@@ -1,6 +1,7 @@
 import { createConnection } from 'net';
 import request from 'request';
 import { createApolloFetch } from 'apollo-fetch';
+import resolvable from '@josephg/resolvable';
 
 import { gql, ApolloServer } from '../index';
 
@@ -16,19 +17,6 @@ const resolvers = {
     hello: () => 'hi',
   },
 };
-
-class Barrier {
-  private resolvePromise!: () => void;
-  private promise = new Promise<void>((r) => {
-    this.resolvePromise = r;
-  });
-  async wait() {
-    await this.promise;
-  }
-  unblock() {
-    this.resolvePromise();
-  }
-}
 
 describe('apollo-server', () => {
   describe('constructor', () => {
@@ -82,11 +70,11 @@ describe('apollo-server', () => {
 
         // Open a TCP connection to the server, and let it dangle idle
         // without starting a request.
-        const connectionBarrier = new Barrier();
+        const connectionBarrier = resolvable();
         createConnection({ host: 'localhost', port: port as number }, () =>
-          connectionBarrier.unblock(),
+          connectionBarrier.resolve(),
         );
-        await connectionBarrier.wait();
+        await connectionBarrier;
 
         // Stop the server. Before, when this was just net.Server.close, this
         // would hang. Now that we use stoppable, the idle connection is immediately
@@ -95,8 +83,8 @@ describe('apollo-server', () => {
       });
 
       it('a connection with an active HTTP request', async () => {
-        const gotToHangBarrier = new Barrier();
-        const hangBarrier = new Barrier();
+        const gotToHangBarrier = resolvable();
+        const hangBarrier = resolvable();
         const server = new ApolloServer({
           typeDefs,
           resolvers: {
@@ -104,8 +92,8 @@ describe('apollo-server', () => {
             Query: {
               ...resolvers.Query,
               async hang() {
-                gotToHangBarrier.unblock();
-                await hangBarrier.wait(); // never unblocks
+                gotToHangBarrier.resolve();
+                await hangBarrier; // never unblocks
               },
             },
           },
@@ -119,7 +107,7 @@ describe('apollo-server', () => {
         // expected error that happens after the server is stopped.)
         const apolloFetch = createApolloFetch({ uri: url });
         apolloFetch({ query: '{hang}' }).catch(() => {});
-        await gotToHangBarrier.wait();
+        await gotToHangBarrier;
 
         // Stop the server. Before, when this was just net.Server.close, this
         // would hang. Now that we use stoppable, the idle connection is immediately

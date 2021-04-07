@@ -27,9 +27,12 @@ const port = 0;
     const { Server } = require('hapi');
 
     testApolloServer(
-      async options => {
+      async (options, suppressStartCall?: boolean) => {
         server = new ApolloServer(options);
         app = new Server({ host: 'localhost', port });
+        if (!suppressStartCall) {
+          await server.start();
+        }
         await server.applyMiddleware({ app });
         await app.start();
         const httpServer = app.listener;

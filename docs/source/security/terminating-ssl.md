@@ -12,48 +12,51 @@ library](/integrations/middleware/).
 Here's an example that uses HTTPS in production and HTTP in development:
 
 ```javascript
-import express from 'express'
-import { ApolloServer } from 'apollo-server-express'
-import typeDefs from './graphql/schema'
-import resolvers from './graphql/resolvers'
-import fs from 'fs'
-import https from 'https'
-import http from 'http'
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+import typeDefs from './graphql/schema';
+import resolvers from './graphql/resolvers';
+import fs from 'fs';
+import https from 'https';
+import http from 'http';
 
-const configurations = {
-  // Note: You may need sudo to run on port 443
-  production: { ssl: true, port: 443, hostname: 'example.com' },
-  development: { ssl: false, port: 4000, hostname: 'localhost' }
-}
+async function startApolloServer() {
+  const configurations = {
+    // Note: You may need sudo to run on port 443
+    production: { ssl: true, port: 443, hostname: 'example.com' },
+    development: { ssl: false, port: 4000, hostname: 'localhost' },
+  };
 
-const environment = process.env.NODE_ENV || 'production'
-const config = configurations[environment]
+  const environment = process.env.NODE_ENV || 'production';
+  const config = configurations[environment];
 
-const apollo = new ApolloServer({ typeDefs, resolvers })
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
 
-const app = express()
-apollo.applyMiddleware({ app })
+  const app = express();
+  server.applyMiddleware({ app });
 
-// Create the HTTPS or HTTP server, per configuration
-var server
-if (config.ssl) {
-  // Assumes certificates are in a .ssl folder off of the package root. Make sure 
-  // these files are secured.
-  server = https.createServer(
-    {
-      key: fs.readFileSync(`./ssl/${environment}/server.key`),
-      cert: fs.readFileSync(`./ssl/${environment}/server.crt`)
-    },
-    app
-  )
-} else {
-  server = http.createServer(app)
-}
+  // Create the HTTPS or HTTP server, per configuration
+  let server;
+  if (config.ssl) {
+    // Assumes certificates are in a .ssl folder off of the package root. Make sure
+    // these files are secured.
+    server = https.createServer(
+      {
+        key: fs.readFileSync(`./ssl/${environment}/server.key`),
+        cert: fs.readFileSync(`./ssl/${environment}/server.crt`)
+      },
+      app,
+    );
+  } else {
+    server = http.createServer(app);
+  }
 
-server.listen({ port: config.port }, () =>
+  await new Promise(resolve => server.listen({ port: config.port }, resolve));
   console.log(
     '🚀 Server ready at',
-    `http${config.ssl ? 's' : ''}://${config.hostname}:${config.port}${apollo.graphqlPath}`
-  )
-)
+    `http${config.ssl ? 's' : ''}://${config.hostname}:${config.port}${server.graphqlPath}`
+  );
+  return { server, app };
+}
 ```

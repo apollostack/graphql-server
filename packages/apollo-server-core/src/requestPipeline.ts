@@ -97,9 +97,9 @@ export interface GraphQLRequestPipelineConfig<TContext> {
 
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
   formatResponse?: (
-    response: GraphQLResponse | null,
+    response: GraphQLResponse,
     requestContext: GraphQLRequestContext<TContext>,
-  ) => GraphQLResponse;
+  ) => GraphQLResponse | null;
 
   plugins?: ApolloServerPlugin[];
   documentStore?: InMemoryLRUCache<DocumentNode>;

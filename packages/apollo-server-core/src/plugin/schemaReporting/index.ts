@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { printSchema, validateSchema, buildSchema } from 'graphql';
 import { SchemaReporter } from './schemaReporter';
 import createSHA from '../../utils/createSHA';
+import { schemaIsFederated } from '../schemaIsFederated';
 
 export interface ApolloServerPluginSchemaReportingOptions {
   /**
@@ -95,6 +96,17 @@ export function ApolloServerPluginSchemaReporting(
               `validate: ${err.message}`,
           );
         }
+      }
+
+      if (schemaIsFederated(schema)) {
+        throw Error(
+          [
+            'Schema reporting is not yet compatible with federated services.',
+            "If you're interested in using schema reporting with federated",
+            'services, please contact Apollo support. To set up managed federation, see',
+            'https://go.apollo.dev/s/managed-federation',
+          ].join(' '),
+        );
       }
 
       const executableSchema = overrideReportedSchema ?? printSchema(schema);

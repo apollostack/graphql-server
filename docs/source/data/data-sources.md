@@ -257,14 +257,16 @@ const server = new ApolloServer({
 For documentation of the options you can pass to the underlying Memcached client, look [here](https://github.com/3rd-Eden/memcached).
 
 ```js
-const { RedisCache } = require('apollo-server-cache-redis');
+const { BaseRedisCache } = require('apollo-server-cache-redis');
+const Redis = require('ioredis');
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  cache: new RedisCache({
-    host: 'redis-server',
-    // Options are passed through to the Redis client
+  cache: new BaseRedisCache({
+    client: new Redis({
+      host: 'redis-server',
+    }),
   }),
   dataSources: () => ({
     moviesAPI: new MoviesAPI(),

@@ -60,7 +60,6 @@ restAPI.get('/str/:id', (req, res) => {
 });
 
 describe('apollo-server-fastify', () => {
-  let restServer: FastifyInstance;
   let app: FastifyInstance;
 
   beforeAll(async () => {
@@ -68,7 +67,7 @@ describe('apollo-server-fastify', () => {
   });
 
   afterAll(async () => {
-    await new Promise(resolve => restServer.close(() => resolve()));
+    await new Promise<void>(resolve => restAPI.close(() => resolve()));
   });
 
   let server: ApolloServer;
@@ -79,7 +78,7 @@ describe('apollo-server-fastify', () => {
 
   afterEach(async () => {
     await server.stop();
-    await new Promise(resolve => app.close(() => resolve()));
+    await new Promise<void>(resolve => app.close(() => resolve()));
   });
 
   it('uses the cache', async () => {
@@ -90,10 +89,11 @@ describe('apollo-server-fastify', () => {
         id: new IdAPI(),
       }),
     });
+    await server.start();
     app = fastify();
 
     app.register(server.createHandler());
-    await app.listen(6667);
+    await app.listen(0);
     const { url: uri } = createServerInfo(server, app.server);
 
     const apolloFetch = createApolloFetch({ uri });
@@ -118,10 +118,11 @@ describe('apollo-server-fastify', () => {
         id: new IdAPI(),
       }),
     });
+    await server.start();
     app = fastify();
 
     app.register(server.createHandler());
-    await app.listen(6668);
+    await app.listen(0);
     const { url: uri } = createServerInfo(server, app.server);
 
     const apolloFetch = createApolloFetch({ uri });

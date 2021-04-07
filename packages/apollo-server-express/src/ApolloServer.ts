@@ -122,25 +122,12 @@ export class ApolloServer extends ApolloServerBase {
   }: GetMiddlewareOptions = {}): express.Router {
     if (!path) path = '/graphql';
 
+    // In case the user didn't bother to call and await the `start` method, we
+    // kick it off in the background (with any errors getting logged
+    // and also rethrown from graphQLServerOptions during later requests).
+    this.ensureStarting();
+
     const router = express.Router();
-
-    // Despite the fact that this `applyMiddleware` function is `async` in
-    // other integrations (e.g. Hapi), currently it is not for Express (@here).
-    // That should change in a future version, but that would be a breaking
-    // change right now (see comment above this method's declaration above).
-    //
-    // That said, we do need to await the `willStart` lifecycle event which
-    // can perform work prior to serving a request.  Since Express doesn't
-    // natively support Promises yet, we'll do this via a middleware that
-    // calls `next` when the `willStart` finishes.  We'll kick off the
-    // `willStart` right away, so hopefully it'll finish before the first
-    // request comes in, but we won't call `next` on this middleware until it
-    // does. (And we'll take care to surface any errors via the `.catch`-able.)
-    const promiseWillStart = this.willStart();
-
-    router.use(path, (_req, _res, next) => {
-      promiseWillStart.then(() => next()).catch(next);
-    });
 
     if (!disableHealthCheck) {
       router.use('/.well-known/apollo/server-health', (req, res) => {
@@ -172,7 +159,7 @@ export class ApolloServer extends ApolloServerBase {
     // Note that we don't just pass all of these handlers to a single app.use call
     // for 'connect' compatibility.
     if (cors === true) {
-      router.use(path, corsMiddleware());
+      router.use(path, corsMiddleware<corsMiddleware.CorsRequest>());
     } else if (cors !== false) {
       router.use(path, corsMiddleware(cors));
     }

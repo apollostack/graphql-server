@@ -2,6 +2,8 @@ import { ApolloServerBase } from '../ApolloServer';
 import { buildServiceDefinition } from '@apollographql/apollo-tools';
 import gql from 'graphql-tag';
 import { Logger } from 'apollo-server-types';
+import { ApolloServerPlugin } from 'apollo-server-plugin-base';
+import type { GraphQLSchema } from 'graphql';
 
 const typeDefs = gql`
   type Query {
@@ -36,17 +38,15 @@ describe('ApolloServerBase construction', () => {
   });
 
   it('succeeds when passed a graphVariant in construction', () => {
-    let serverBase;
-    expect(
-      () =>
-        new ApolloServerBase({
-          typeDefs,
-          resolvers,
-          engine: {
-            graphVariant: 'foo',
-            apiKey: 'not:real:key',
-          },
-        }).stop()
+    expect(() =>
+      new ApolloServerBase({
+        typeDefs,
+        resolvers,
+        engine: {
+          graphVariant: 'foo',
+          apiKey: 'not:real:key',
+        },
+      }).stop(),
     ).not.toThrow();
   });
 
@@ -85,10 +85,10 @@ describe('ApolloServerBase construction', () => {
   it('throws when a GraphQLSchema is not provided to the schema configuration option', () => {
     expect(() => {
       new ApolloServerBase({
-        schema: {},
+        schema: {} as GraphQLSchema,
       });
     }).toThrowErrorMatchingInlineSnapshot(
-      `"Unexpected error: Unable to resolve a valid GraphQLSchema.  Please file an issue with a reproduction of this error, if possible."`,
+      `"Expected {} to be a GraphQL schema."`,
     );
   });
 
@@ -97,6 +97,58 @@ describe('ApolloServerBase construction', () => {
       new ApolloServerBase({});
     }).toThrowErrorMatchingInlineSnapshot(
       `"Apollo Server requires either an existing schema, modules or typeDefs"`,
+    );
+  });
+});
+
+describe('ApolloServerBase start', () => {
+  const failToStartPlugin: ApolloServerPlugin = {
+    async serverWillStart() {
+      throw Error('nope');
+    },
+  };
+  const redactedMessage =
+    'This data graph is missing a valid configuration. More details may be available in the server logs.';
+
+  it('start throws on startup error', async () => {
+    const server = new ApolloServerBase({
+      typeDefs,
+      resolvers,
+      plugins: [failToStartPlugin],
+    });
+    await expect(server.start()).rejects.toThrow('nope');
+  });
+
+  it('execute throws redacted message on implicit startup error', async () => {
+    const error = jest.fn();
+    const logger: Logger = {
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error,
+    };
+
+    const server = new ApolloServerBase({
+      typeDefs,
+      resolvers,
+      plugins: [failToStartPlugin],
+      logger,
+    });
+    // Run the operation twice (the first will kick off the start process). We
+    // want to see the same error thrown and log message for the "kick it off"
+    // call as the subsequent call.
+    await expect(
+      server.executeOperation({ query: '{__typename}' }),
+    ).rejects.toThrow(redactedMessage);
+    await expect(
+      server.executeOperation({ query: '{__typename}' }),
+    ).rejects.toThrow(redactedMessage);
+    expect(error).toHaveBeenCalledTimes(2);
+    expect(error.mock.calls[0][0]).toMatch(
+      /Apollo Server was started implicitly.*nope/,
+    );
+    expect(error.mock.calls[1][0]).toMatch(
+      /Apollo Server was started implicitly.*nope/,
     );
   });
 });

@@ -90,7 +90,7 @@ exports.handler = server.createHandler();
 
 Now, make sure you've run `NODE_ENV=development npm run start:lambda`, and navigate to `localhost:9000/graphql` in your browser. You should see GraphQL Playground, where you can run queries against your API!
 
-*Note - The GraphQL Playground will only run if your `NODE_ENV` is set to `development`. If you don't pass this, or your `NODE_ENV` is set to `production`, you will not see the GraphQL Playground.* 
+*Note - The GraphQL Playground will only run if your `NODE_ENV` is set to `development`. If you don't pass this, or your `NODE_ENV` is set to `production`, you will not see the GraphQL Playground.*
 
 ![Local GraphQL Server](../images/graphql.png)
 

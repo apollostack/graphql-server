@@ -1,9 +1,4 @@
 # The renovate-approve bot is allowed to merge its own PRs.  As it's not
 # a regular GitHub user (but rather, an app!), its username is indicated
 # as such, using the `app/` prefix. https://github.com/apps/renovate-approve
-/docs/ app/renovate-approve @stephenbarlow @abernix @trevor-scheer
-
-# Changes to the federation specification should be further reviewed.
-# Most importantly because they require messaging and awareness to
-# other implementations other than our own.
-/docs/source/federation/federation-spec.md @jbaxleyiii
+/docs/ app/renovate-approve @stephenbarlow @glasser

@@ -101,26 +101,12 @@ export class ApolloServer extends ApolloServerBase {
   }: GetMiddlewareOptions = {}): Middleware {
     if (!path) path = '/graphql';
 
-    // Despite the fact that this `applyMiddleware` function is `async` in
-    // other integrations (e.g. Hapi), currently it is not for Koa (@here).
-    // That should change in a future version, but that would be a breaking
-    // change right now (see comment above this method's declaration above).
-    //
-    // That said, we do need to await the `willStart` lifecycle event which
-    // can perform work prior to serving a request.  While we could do this
-    // via awaiting in a Koa middleware, well kick off `willStart` right away,
-    // so hopefully it'll finish before the first request comes in.  We won't
-    // call `next` until it's ready, which will effectively yield until that
-    // work has finished.  Any errors will be surfaced to Koa through its own
-    // native Promise-catching facilities.
-    const promiseWillStart = this.willStart();
+    // In case the user didn't bother to call and await the `start` method, we
+    // kick it off in the background (with any errors getting logged
+    // and also rethrown from graphQLServerOptions during later requests).
+    this.ensureStarting();
+
     const middlewares = [];
-    middlewares.push(
-      middlewareFromPath(path, async (_ctx: Koa.Context, next: Function) => {
-        await promiseWillStart;
-        return next();
-      }),
-    );
 
     if (!disableHealthCheck) {
       middlewares.push(

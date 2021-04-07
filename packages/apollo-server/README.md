@@ -24,7 +24,7 @@ Anyone is welcome to contribute to Apollo Server, just read [CONTRIBUTING.md](./
 
 To get started with Apollo Server:
 
-* Install with `npm install apollo-server-<integration>`
+* Install with `npm install apollo-server-<integration> graphql`
 * Write a GraphQL schema
 * Use one of the following snippets
 

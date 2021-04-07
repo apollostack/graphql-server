@@ -36,8 +36,8 @@ export function testKeyValueCache_Expiration(
     });
 
     afterAll(() => {
+      jest.useRealTimers();
       unmockDate();
-      keyValueCache.close && keyValueCache.close();
     });
 
     it('is able to expire keys based on ttl', async () => {
@@ -70,6 +70,11 @@ export function testKeyValueCache_Expiration(
 
 export function testKeyValueCache(keyValueCache: TestableKeyValueCache) {
   describe('KeyValueCache Test Suite', () => {
+    afterAll(async () => {
+      if (keyValueCache.close) {
+        await keyValueCache.close();
+      }
+    });
     testKeyValueCache_Basics(keyValueCache);
     testKeyValueCache_Expiration(keyValueCache);
   });

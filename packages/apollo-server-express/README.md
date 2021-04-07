@@ -14,28 +14,31 @@ npm install apollo-server-express graphql
 const express = require('express');
 const { ApolloServer, gql } = require('apollo-server-express');
 
-// Construct a schema, using GraphQL schema language
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
+async function startApolloServer() {
+  // Construct a schema, using GraphQL schema language
+  const typeDefs = gql`
+    type Query {
+      hello: String
+    }
+  `;
 
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-  },
-};
+  // Provide resolver functions for your schema fields
+  const resolvers = {
+    Query: {
+      hello: () => 'Hello world!',
+    },
+  };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
 
-const app = express();
-server.applyMiddleware({ app });
+  const app = express();
+  server.applyMiddleware({ app });
 
-app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-);
+  await new Promise(resolve => app.listen({ port: 4000 }, resolve));
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  return { server, app };
+}
 ```
 
 ## Connect
@@ -46,7 +49,7 @@ app.listen({ port: 4000 }, () =>
 > to `apollo-server-express`.
 
 ```shell
-npm install --save connect qs-middleware apollo-server-express
+npm install --save connect qs-middleware apollo-server-express graphql
 ```
 
 ```js
@@ -54,31 +57,34 @@ const connect = require('connect');
 const { ApolloServer, gql } = require('apollo-server-express');
 const query = require('qs-middleware');
 
-// Construct a schema, using GraphQL schema language
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
+async function startApolloServer() {
+  // Construct a schema, using GraphQL schema language
+  const typeDefs = gql`
+    type Query {
+      hello: String
+    }
+  `;
 
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-  },
-};
+  // Provide resolver functions for your schema fields
+  const resolvers = {
+    Query: {
+      hello: () => 'Hello world!',
+    },
+  };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
 
-const app = connect();
-const path = '/graphql';
+  const app = connect();
+  const path = '/graphql';
 
-app.use(query());
-server.applyMiddleware({ app, path });
+  app.use(query());
+  server.applyMiddleware({ app, path });
 
-app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-);
+  await new Promise(resolve => app.listen({ port: 4000 }, resolve));
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  return { server, app };
+}
 ```
 
 > Note: `qs-middleware` is only required if running outside of Meteor

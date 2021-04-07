@@ -95,8 +95,18 @@ export class ApolloServer extends ApolloServerBase {
     );
   }
 
+  public async start(): Promise<void> {
+    throw new Error(
+      "When using the `apollo-server` package, you don't need to call start(); just call listen().",
+    );
+  }
+
   // Listen takes the same arguments as http.Server.listen.
   public async listen(...opts: Array<any>): Promise<ServerInfo> {
+    // First start the server and throw if startup fails (eg, schema can't be loaded
+    // or a serverWillStart plugin throws).
+    await this._start();
+
     // This class is the easy mode for people who don't create their own express
     // object, so we have to create it.
     const app = express();

@@ -24,6 +24,7 @@ import {
 } from './helpers.test-helpers';
 import { Headers } from 'apollo-server-env';
 import { GraphQLRequest } from 'apollo-server-plugin-base';
+import { ApolloConfigInput } from 'apollo-server-types';
 
 // While not ideal, today, Apollo Server has a very real expectation of an HTTP
 // request context.  That will change in the future.  While we can sometimes
@@ -76,13 +77,6 @@ describe('Operation registry plugin', () => {
     );
     const queryHash = operationSignature(normalizedQueryDocument);
 
-    // In order to expose will start and
-    class ApolloServerMock extends ApolloServerBase {
-      public async willStart() {
-        return super.willStart();
-      }
-    }
-
     describe('onUnregisterOperation', () => {
       it('is called when unregistered operation received', async () => {
         const onUnregisteredOperation: Options['onUnregisteredOperation'] = jest.fn();
@@ -92,7 +86,7 @@ describe('Operation registry plugin', () => {
           genericStorageSecret,
           [ /* Intentionally empty! */ ],
         );
-        const server = new ApolloServerMock({
+        const server = new ApolloServerBase({
           typeDefs,
           mockEntireSchema: true,
           apollo,
@@ -103,7 +97,7 @@ describe('Operation registry plugin', () => {
             })(),
           ],
         });
-        await server.willStart();
+        await server.start();
         const result = await server.executeOperation({
           ...mockHttpRequestContextForExecuteOperation,
           query: print(query),
@@ -143,7 +137,7 @@ describe('Operation registry plugin', () => {
             },
           ],
         );
-        const server = new ApolloServerMock({
+        const server = new ApolloServerBase({
           typeDefs,
           mockEntireSchema: true,
           apollo,
@@ -154,7 +148,7 @@ describe('Operation registry plugin', () => {
             })(),
           ],
         });
-        await server.willStart();
+        await server.start();
         const result = await server.executeOperation({
           ...mockHttpRequestContextForExecuteOperation,
           query: print(query),
@@ -180,7 +174,7 @@ describe('Operation registry plugin', () => {
           genericStorageSecret,
           [ /* Intentionally empty! */ ],
         );
-        const server = new ApolloServerMock({
+        const server = new ApolloServerBase({
           typeDefs,
           mockEntireSchema: true,
           apollo,
@@ -192,7 +186,7 @@ describe('Operation registry plugin', () => {
             })(),
           ],
         });
-        await server.willStart();
+        await server.start();
         const result = await server.executeOperation({
           ...mockHttpRequestContextForExecuteOperation,
           query: print(query),
@@ -234,7 +228,7 @@ describe('Operation registry plugin', () => {
           genericStorageSecret,
           [ /* Intentionally empty! */ ],
         );
-        const server = new ApolloServerMock({
+        const server = new ApolloServerBase({
           typeDefs,
           mockEntireSchema: true,
           apollo,
@@ -246,7 +240,7 @@ describe('Operation registry plugin', () => {
             })(),
           ],
         });
-        await server.willStart();
+        await server.start();
         const result = await server.executeOperation({
           ...mockHttpRequestContextForExecuteOperation,
           query: print(query),
@@ -273,7 +267,7 @@ describe('Operation registry plugin', () => {
             },
           ],
         );
-        const server = new ApolloServerMock({
+        const server = new ApolloServerBase({
           typeDefs,
           mockEntireSchema: true,
           apollo,
@@ -284,7 +278,7 @@ describe('Operation registry plugin', () => {
             })(),
           ],
         });
-        await server.willStart();
+        await server.start();
         const result = await server.executeOperation({
           ...mockHttpRequestContextForExecuteOperation,
           query: print(query),

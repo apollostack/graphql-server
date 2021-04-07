@@ -1,6 +1,6 @@
 {
   "name": "apollo-server-types",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "Apollo Server shared types",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

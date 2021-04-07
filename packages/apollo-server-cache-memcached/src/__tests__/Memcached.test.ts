@@ -9,6 +9,9 @@ import {
 
 describe('Memcached', () => {
   const cache = new MemcachedCache('localhost');
+  afterAll(async () => {
+    await cache.close();
+  })
   testKeyValueCache_Basics(cache);
   testKeyValueCache_Expiration(cache);
 });
