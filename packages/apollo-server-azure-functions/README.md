@@ -140,7 +140,7 @@ The options correspond to the [express cors configuration](https://github.com/ex
 
 ## Enabling health checks
 
-To enable the health checks it's necessary to modify the route template in the `function.json` file. To accomplish this adds the `*` wildcard to the `route` property into the `bindings` section.
+To enable the health checks it's necessary to modify the route template in the `function.json` file. To accomplish this add the `*` wildcard to the `route` property into the `bindings` section.
 
 ```
 {
