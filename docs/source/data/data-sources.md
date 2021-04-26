@@ -15,7 +15,7 @@ To get started, install the REST data source package:
 npm install apollo-datasource-rest
 ```
 
-To define a data source, extend the `RESTDataSource` class and implement the data fetching methods that your resolvers require. Your implementation of these methods can call on convenience methods built into the `RESTDataSource` class to perform HTTP requests, while making it easy to build up query parameters, parse JSON results, and handle errors.
+To define a data source, extend the `RESTDataSource` class and implement the data fetching methods that your resolvers require. Your implementation of these methods can call on convenience methods built into the `RESTDataSource` class to perform HTTP requests, while making it easy to build up query parameters, parse JSON results, and handle errors. Please make sure to provide a non-null pathname as the first argument to `this.get` or other verbs.
 
 ```js
 const { RESTDataSource } = require('apollo-datasource-rest');
