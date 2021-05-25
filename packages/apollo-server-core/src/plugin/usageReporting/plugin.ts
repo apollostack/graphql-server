@@ -91,11 +91,19 @@ export function ApolloServerPluginUsageReporting<TContext>(
       // Use the plugin-specific logger if one is provided; otherwise the general server one.
       const logger = options.logger ?? serverLogger;
       const { key, graphId } = apollo;
-      if (!(key && graphId)) {
+      if (!key) {
         throw new Error(
           "You've enabled usage reporting via ApolloServerPluginUsageReporting, " +
             'but you also need to provide your Apollo API key, via the APOLLO_KEY environment ' +
-            'variable or via `new ApolloServer({apollo: {key})',
+            'variable or via `new ApolloServer({ apollo: { key } })',
+        );
+      }
+      if (!graphId) {
+        throw new Error(
+          "You've enabled usage reporting via ApolloServerPluginUsageReporting, " +
+            'but you also need to provide your Apollo graph id, via the APOLLO_GRAPH_ID ' +
+            'environment variable, via `new ApolloServer({ apollo: { graphId } }), or via an ' +
+            'Apollo API key of the form "service:<graph_id>:whatever"',
         );
       }
 
