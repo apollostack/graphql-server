@@ -46,7 +46,7 @@ export class GraphQLExtension<TContext = any> {
     executionArgs: ExecutionArgs;
   }): EndHandler | void;
 
-  public didEncounterErrors?(errors: ReadonlyArray<GraphQLError>): void;
+  public didEncounterErrors?(errors: Array<GraphQLError>): void;
 
   public willSendResponse?(o: {
     graphqlResponse: GraphQLResponse;
@@ -107,7 +107,7 @@ export class GraphQLExtensionStack<TContext = any> {
     );
   }
 
-  public didEncounterErrors(errors: ReadonlyArray<GraphQLError>) {
+  public didEncounterErrors(errors: Array<GraphQLError>) {
     this.extensions.forEach(extension => {
       if (extension.didEncounterErrors) {
         extension.didEncounterErrors(errors);

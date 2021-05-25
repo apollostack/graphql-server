@@ -76,7 +76,7 @@ export class TraceTreeBuilder {
     };
   }
 
-  public didEncounterErrors(errors: readonly GraphQLError[]) {
+  public didEncounterErrors(errors: GraphQLError[]) {
     errors.forEach((err) => {
       // This is an error from a federated service. We will already be reporting
       // it in the nested Trace in the query plan.

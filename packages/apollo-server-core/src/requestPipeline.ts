@@ -524,7 +524,7 @@ export async function processGraphQLRequest<TContext>(
     }
   }
 
-  function validate(document: DocumentNode): ReadonlyArray<GraphQLError> {
+  function validate(document: DocumentNode): Array<GraphQLError> {
     let rules = specifiedRules;
     if (config.validationRules) {
       rules = rules.concat(config.validationRules);
@@ -624,7 +624,7 @@ export async function processGraphQLRequest<TContext>(
     throw error;
   }
 
-  async function didEncounterErrors(errors: ReadonlyArray<GraphQLError>) {
+  async function didEncounterErrors(errors: Array<GraphQLError>) {
     requestContext.errors = errors;
     extensionStack.didEncounterErrors(errors);
 
@@ -635,7 +635,7 @@ export async function processGraphQLRequest<TContext>(
   }
 
   async function sendErrorResponse(
-    errorOrErrors: ReadonlyArray<GraphQLError> | GraphQLError,
+    errorOrErrors: Array<GraphQLError> | GraphQLError,
     errorClass?: typeof ApolloError,
   ) {
     // If a single error is passed, it should still be encapsulated in an array.
@@ -660,8 +660,8 @@ export async function processGraphQLRequest<TContext>(
   }
 
   function formatErrors(
-    errors: ReadonlyArray<GraphQLError>,
-  ): ReadonlyArray<GraphQLFormattedError> {
+    errors: Array<GraphQLError>,
+  ): Array<GraphQLFormattedError> {
     return formatApolloErrors(errors, {
       formatter: config.formatError,
       debug: requestContext.debug,

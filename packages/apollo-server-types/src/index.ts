@@ -96,7 +96,7 @@ export type VariableValues = { [name: string]: any };
 
 export interface GraphQLResponse {
   data?: Record<string, any> | null;
-  errors?: ReadonlyArray<GraphQLFormattedError>;
+  errors?: Array<GraphQLFormattedError>;
   extensions?: Record<string, any>;
   http?: Pick<Response, 'headers'> & Partial<Pick<Mutable<Response>, 'status'>>;
 }
@@ -114,7 +114,7 @@ export interface GraphQLRequestMetrics {
 
 export interface GraphQLRequestContext<TContext = Record<string, any>> {
   readonly request: GraphQLRequest;
-  readonly response?: GraphQLResponse;
+  response?: GraphQLResponse;
 
   logger: Logger;
 
@@ -142,7 +142,7 @@ export interface GraphQLRequestContext<TContext = Record<string, any>> {
    * errors which are the result of running the user-configurable `formatError`
    * transformation function over specific errors.
    */
-  readonly errors?: ReadonlyArray<GraphQLError>;
+  errors?: Array<GraphQLError>;
 
   readonly metrics: GraphQLRequestMetrics;
 
@@ -159,7 +159,7 @@ export type GraphQLExecutor<TContext = Record<string, any>> = (
 
 export type GraphQLExecutionResult = {
   data?: Record<string, any> | null;
-  errors?: ReadonlyArray<GraphQLError>;
+  errors?: Array<GraphQLError>;
   extensions?: Record<string, any>;
 };
 

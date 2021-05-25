@@ -11,7 +11,7 @@ import { GraphQLFormattedError } from 'graphql';
 
 export interface SchemaReportingServerInfoResult {
   data?: ReportServerInfo;
-  errors?: ReadonlyArray<GraphQLFormattedError>;
+  errors?: Array<GraphQLFormattedError>;
 }
 export interface ReportServerInfo_me_UserMutation {
   __typename: 'UserMutation';
