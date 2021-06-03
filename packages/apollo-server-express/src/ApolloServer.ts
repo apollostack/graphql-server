@@ -24,6 +24,7 @@ export { GraphQLOptions, GraphQLExtension } from 'apollo-server-core';
 
 export interface GetMiddlewareOptions {
   path?: string;
+  healthCheckPath?: string;
   cors?: corsMiddleware.CorsOptions | corsMiddleware.CorsOptionsDelegate | boolean;
   bodyParserConfig?: OptionsJson | boolean;
   onHealthCheck?: (req: express.Request) => Promise<any>;
@@ -115,12 +116,14 @@ export class ApolloServer extends ApolloServerBase {
   // Hapi) which must be `async`.
   public getMiddleware({
     path,
+    healthCheckPath,
     cors,
     bodyParserConfig,
     disableHealthCheck,
     onHealthCheck,
   }: GetMiddlewareOptions = {}): express.Router {
     if (!path) path = '/graphql';
+    if (!healthCheckPath) healthCheckPath = '/.well-known/apollo/server-health';
 
     // In case the user didn't bother to call and await the `start` method, we
     // kick it off in the background (with any errors getting logged
@@ -130,7 +133,7 @@ export class ApolloServer extends ApolloServerBase {
     const router = express.Router();
 
     if (!disableHealthCheck) {
-      router.use('/.well-known/apollo/server-health', (req, res) => {
+      router.use(healthCheckPath, (req, res) => {
         // Response follows https://tools.ietf.org/html/draft-inadarei-api-health-check-01
         res.type('application/health+json');
 

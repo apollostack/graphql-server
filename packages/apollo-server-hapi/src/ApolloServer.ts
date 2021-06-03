@@ -56,6 +56,7 @@ export class ApolloServer extends ApolloServerBase {
     app,
     cors,
     path,
+    healthCheckPath,
     route,
     disableHealthCheck,
     onHealthCheck,
@@ -66,6 +67,7 @@ export class ApolloServer extends ApolloServerBase {
     this.ensureStarting();
 
     if (!path) path = '/graphql';
+    if (!healthCheckPath) healthCheckPath = '/.well-known/apollo/server-health';
 
     await app.ext({
       type: 'onRequest',
@@ -108,7 +110,7 @@ export class ApolloServer extends ApolloServerBase {
     if (!disableHealthCheck) {
       await app.route({
         method: '*',
-        path: '/.well-known/apollo/server-health',
+        path: healthCheckPath,
         options: {
           cors: cors !== undefined ? cors : true,
         },
@@ -151,6 +153,7 @@ export class ApolloServer extends ApolloServerBase {
 export interface ServerRegistration {
   app?: hapi.Server;
   path?: string;
+  healthCheckPath?: string;
   cors?: boolean | hapi.RouteOptionsCors;
   route?: hapi.RouteOptions;
   onHealthCheck?: (request: hapi.Request) => Promise<any>;

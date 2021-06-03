@@ -13,6 +13,7 @@ import { MicroRequest } from './types';
 
 export interface ServerRegistration {
   path?: string;
+  healthCheckPath?: string;
   disableHealthCheck?: boolean;
   onHealthCheck?: (req: MicroRequest) => Promise<any>;
 }
@@ -30,6 +31,7 @@ export class ApolloServer extends ApolloServerBase {
   // GraphQL requests.
   public createHandler({
     path,
+    healthCheckPath,
     disableHealthCheck,
     onHealthCheck,
   }: ServerRegistration = {}) {
@@ -49,6 +51,7 @@ export class ApolloServer extends ApolloServerBase {
         req,
         res,
         disableHealthCheck,
+        healthCheckPath,
         onHealthCheck,
       })) ||
         this.handleGraphqlRequestsWithPlayground({ req, res }) ||
@@ -73,6 +76,7 @@ export class ApolloServer extends ApolloServerBase {
     req,
     res,
     disableHealthCheck,
+    healthCheckPath,
     onHealthCheck,
   }: {
     req: MicroRequest;
@@ -82,9 +86,11 @@ export class ApolloServer extends ApolloServerBase {
   }): Promise<boolean> {
     let handled = false;
 
+    if (!healthCheckPath) healthCheckPath = '/.well-known/apollo/server-health';
+
     if (
       !disableHealthCheck &&
-      req.url === '/.well-known/apollo/server-health'
+      req.url === healthCheckPath
     ) {
       // Response follows
       // https://tools.ietf.org/html/draft-inadarei-api-health-check-01

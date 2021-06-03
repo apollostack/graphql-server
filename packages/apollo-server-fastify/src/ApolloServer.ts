@@ -18,6 +18,7 @@ const fastJson = require('fast-json-stringify');
 
 export interface ServerRegistration {
   path?: string;
+  healthCheckPath?: string;
   cors?: object | boolean;
   onHealthCheck?: (req: FastifyRequest<IncomingMessage>) => Promise<any>;
   disableHealthCheck?: boolean;
@@ -80,11 +81,13 @@ export class ApolloServer extends ApolloServerBase {
 
   public createHandler({
     path,
+    healthCheckPath,
     cors,
     disableHealthCheck,
     onHealthCheck,
   }: ServerRegistration = {}) {
     this.graphqlPath = path ? path : '/graphql';
+    if (!healthCheckPath) healthCheckPath = '/.well-known/apollo/server-health';
 
     // In case the user didn't bother to call and await the `start` method, we
     // kick it off in the background (with any errors getting logged
@@ -95,7 +98,7 @@ export class ApolloServer extends ApolloServerBase {
       app: FastifyInstance<Server, IncomingMessage, ServerResponse>,
     ) => {
       if (!disableHealthCheck) {
-        app.get('/.well-known/apollo/server-health', async (req, res) => {
+        app.get(healthCheckPath, async (req, res) => {
           // Response follows https://tools.ietf.org/html/draft-inadarei-api-health-check-01
           res.type('application/health+json');
 
