@@ -98,7 +98,7 @@ export class ApolloServer extends ApolloServerBase {
       app: FastifyInstance<Server, IncomingMessage, ServerResponse>,
     ) => {
       if (!disableHealthCheck) {
-        app.get(healthCheckPath, async (req, res) => {
+        app.get(healthCheckPath as string, async (req: FastifyRequest<IncomingMessage>, res: FastifyReply<ServerResponse>) => {
           // Response follows https://tools.ietf.org/html/draft-inadarei-api-health-check-01
           res.type('application/health+json');
 
