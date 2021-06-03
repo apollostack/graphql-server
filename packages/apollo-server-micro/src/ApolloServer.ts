@@ -82,6 +82,7 @@ export class ApolloServer extends ApolloServerBase {
     req: MicroRequest;
     res: ServerResponse;
     disableHealthCheck?: boolean;
+    healthCheckPath?: string;
     onHealthCheck?: (req: MicroRequest) => Promise<any>;
   }): Promise<boolean> {
     let handled = false;
