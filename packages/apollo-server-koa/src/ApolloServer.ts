@@ -22,7 +22,6 @@ export { GraphQLOptions, GraphQLExtension } from 'apollo-server-core';
 
 export interface GetMiddlewareOptions {
   path?: string;
-  healthCheckPath?: string;
   cors?: corsMiddleware.Options | boolean;
   bodyParserConfig?: bodyParser.Options | boolean;
   onHealthCheck?: (ctx: Koa.Context) => Promise<any>;
@@ -95,14 +94,12 @@ export class ApolloServer extends ApolloServerBase {
   // order to align the API with other integrations.
   public getMiddleware({
     path,
-    healthCheckPath,
     cors,
     bodyParserConfig,
     disableHealthCheck,
     onHealthCheck,
   }: GetMiddlewareOptions = {}): Middleware {
     if (!path) path = '/graphql';
-    if (!healthCheckPath) healthCheckPath = '/.well-known/apollo/server-health';
 
     // In case the user didn't bother to call and await the `start` method, we
     // kick it off in the background (with any errors getting logged
@@ -114,7 +111,7 @@ export class ApolloServer extends ApolloServerBase {
     if (!disableHealthCheck) {
       middlewares.push(
         middlewareFromPath(
-          healthCheckPath,
+          '/.well-known/apollo/server-health',
           (ctx: Koa.Context) => {
             // Response follows https://tools.ietf.org/html/draft-inadarei-api-health-check-01
             ctx.set('Content-Type', 'application/health+json');

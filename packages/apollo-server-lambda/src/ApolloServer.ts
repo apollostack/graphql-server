@@ -52,7 +52,6 @@ export interface CreateHandlerOptions<EventT extends APIGatewayProxyEventV1OrV2 
     credentials?: boolean;
     maxAge?: number;
   };
-  healthCheckPath?: string;
   uploadsConfig?: FileUploadOptions;
   onHealthCheck?: (req: EventT) => Promise<any>;
 }
@@ -125,9 +124,8 @@ export class ApolloServer<EventT extends APIGatewayProxyEventV1OrV2 = APIGateway
   }
 
   public createHandler(
-    { cors, onHealthCheck, healthCheckPath }: CreateHandlerOptions<EventT> = {
+    { cors, onHealthCheck }: CreateHandlerOptions<EventT> = {
       cors: undefined,
-      healthCheckPath: undefined,
       onHealthCheck: undefined,
     },
   ) {
@@ -235,8 +233,7 @@ export class ApolloServer<EventT extends APIGatewayProxyEventV1OrV2 = APIGateway
           };
         }
 
-        if (!healthCheckPath) healthCheckPath = '/.well-known/apollo/server-health';
-        if (eventPath(event).endsWith(healthCheckPath)) {
+        if (eventPath(event).endsWith('/.well-known/apollo/server-health')) {
           if (onHealthCheck) {
             try {
               await onHealthCheck(event);
