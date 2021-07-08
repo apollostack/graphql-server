@@ -30,6 +30,8 @@ declare module 'apollo-server-env/dist/fetch' {
   }
 }
 
+const ObjectPrototypeToString = Object.prototype.toString;
+
 export type RequestOptions = RequestInit & {
   path: string;
   params: URLSearchParams;
@@ -230,17 +232,24 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
 
     // We accept arbitrary objects and arrays as body and serialize them as JSON
     if (
-      options.body !== undefined &&
+      typeof options.body === 'object' &&
       options.body !== null &&
-      (options.body.constructor === Object ||
+      (ObjectPrototypeToString.call(options.body) === '[object Object]' ||
         Array.isArray(options.body) ||
-        ((options.body as any).toJSON &&
-          typeof (options.body as any).toJSON === 'function'))
+        typeof (options.body as any).toJSON === 'function')
     ) {
-      options.body = JSON.stringify(options.body);
-      // If Content-Type header has not been previously set, set to application/json
-      if (!options.headers.get('Content-Type')) {
-        options.headers.set('Content-Type', 'application/json');
+      const contentType = options.headers.get('Content-Type');
+      if (contentType !== 'multipart/form-data') {
+        let passed = true;
+        try {
+          options.body = JSON.stringify(options.body);
+        } catch (error) {
+          passed = false;
+        }
+        // If Content-Type header has not been previously set, set to application/json
+        if (passed && !contentType) {
+          options.headers.set('Content-Type', 'application/json');
+        }
       }
     }
 
