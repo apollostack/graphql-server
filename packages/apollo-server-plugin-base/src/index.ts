@@ -45,6 +45,8 @@ export {
   GraphQLRequestContextWillSendResponse,
 };
 
+type Mutable<T> = { -readonly [P in keyof T]: T[P] };
+
 // Typings Note! (Fix in AS3?)
 //
 // There are a number of types in this module which are specifying `void` as
@@ -88,7 +90,7 @@ export interface GraphQLRequestListener<
     requestContext: GraphQLRequestContextValidationDidStart<TContext>,
   ): GraphQLRequestListenerValidationDidEnd | void;
   didResolveOperation?(
-    requestContext: GraphQLRequestContextDidResolveOperation<TContext>,
+    requestContext: Mutable<GraphQLRequestContextDidResolveOperation<TContext>>,
   ): ValueOrPromise<void>;
   didEncounterErrors?(
     requestContext: GraphQLRequestContextDidEncounterErrors<TContext>,
