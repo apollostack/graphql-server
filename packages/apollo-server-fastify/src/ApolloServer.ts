@@ -138,7 +138,7 @@ export class ApolloServer extends ApolloServerBase {
               // schema, you'll need to manually specify `introspection: true` in the
               // ApolloServer constructor; by default, the introspection query is only
               // enabled in dev.
-              if (this.playgroundOptions && req.req.method === 'GET') {
+              if (this.playgroundOptions && req.raw.method === 'GET') {
                 // perform more expensive content-type check only if necessary
                 const accept = (req as any).accepts() as Accepts;
                 const types = accept.types() as string[];
