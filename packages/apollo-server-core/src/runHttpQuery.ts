@@ -167,6 +167,7 @@ export async function runHttpQuery(
     validationRules: options.validationRules,
     executor: options.executor,
     fieldResolver: options.fieldResolver,
+    executeFn: options.executeFn,
 
     // TODO: Use proper option types to ensure this
     // The cache is guaranteed to be initialized in ApolloServer, and

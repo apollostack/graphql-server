@@ -1,4 +1,4 @@
-import { GraphQLSchema, DocumentNode } from 'graphql';
+import { GraphQLSchema, DocumentNode, execute, subscribe } from 'graphql';
 import {
   SchemaDirectiveVisitor,
   IResolvers,
@@ -110,6 +110,14 @@ export interface Config extends BaseConfig {
   schema?: GraphQLSchema;
   schemaDirectives?: Record<string, typeof SchemaDirectiveVisitor>;
   context?: Context | ContextFunction;
+  /**
+   * Custom `execute` function. Replaces `execute` of GraphQL-JS.
+   */
+  executeFn?: typeof execute,
+  /**
+   * Custom `subscribe` function. Replaces `subscribe` of GraphQL-JS.
+   */
+  subscribeFn?: typeof subscribe,
   introspection?: boolean;
   mocks?: boolean | IMocks;
   mockEntireSchema?: boolean;

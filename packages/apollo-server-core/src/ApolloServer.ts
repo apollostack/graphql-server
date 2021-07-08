@@ -956,8 +956,8 @@ export class ApolloServerBase {
     this.subscriptionServer = SubscriptionServer.create(
       {
         schema,
-        execute,
-        subscribe,
+        execute: this.config.executeFn || execute,
+        subscribe: this.config.subscribeFn || subscribe,
         onConnect: onConnect
           ? onConnect
           : (connectionParams: Object) => ({ ...connectionParams }),
@@ -1246,6 +1246,8 @@ export class ApolloServerBase {
       documentStore,
       extensions,
       context,
+      executeFn: this.config.executeFn,
+      subscribeFn: this.config.subscribeFn,
       // Allow overrides from options. Be explicit about a couple of them to
       // avoid a bad side effect of the otherwise useful noUnusedLocals option
       // (https://github.com/Microsoft/TypeScript/issues/21673).
