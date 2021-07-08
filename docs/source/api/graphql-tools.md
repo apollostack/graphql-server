@@ -5,7 +5,7 @@ sidebar_title: graphql-tools
 
 The `graphql-tools` library enables the creation and manipulation of GraphQL schema. Apollo Server is able to accept a `schema` that has been enabled by `graphql-tools`. Apollo server directly exports all the function from `graphql-tools`, enabling a migration path for more complicated use cases.
 
-> Apollo Server uses `graphql-tools` version 4. For documentation of the _latest_ version of `graphql-tools`, see the [official `graphql-tools` documentation](https://www.graphql-tools.com/docs/introduction).
+> Apollo Server includes `graphql-tools` version 4. To use another version of the library, see [Using a different version of graphql-tools](../installing-graphql-tools/).
 
 ```js
 const { makeExecutableSchema } = require('apollo-server');

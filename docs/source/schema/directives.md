@@ -67,7 +67,7 @@ The [GraphQL specification](http://spec.graphql.org/June2018/#sec-Type-System.Di
 
 You can extend Apollo Server with custom schema directives created by you or a third party.
 
-> To learn how to create custom directives, see [implementing directives](./creating-directives/).
+> To learn how to create custom directives, see [Creating schema directives](./creating-directives/).
 
 To use a custom directive:
 

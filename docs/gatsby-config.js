@@ -75,7 +75,7 @@ module.exports = {
           ],
           Appendices: [
             'proxy-configuration',
-            'migration-two-dot',
+            'installing-graphql-tools',
             'migration-file-uploads',
             'migration-engine-plugins',
           ],
