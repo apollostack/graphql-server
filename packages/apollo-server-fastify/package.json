@@ -29,6 +29,7 @@
     "@apollographql/graphql-playground-html": "1.6.27",
     "apollo-server-core": "file:../apollo-server-core",
     "apollo-server-types": "file:../apollo-server-types",
+    "fast-json-stringify": "^2.2.1",
     "fastify-accepts": "^1.0.0",
     "fastify-cors": "^0.2.0",
     "graphql-subscriptions": "^1.0.0",
