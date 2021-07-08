@@ -58,7 +58,7 @@ export interface GraphQLServerOptions<
   tracing?: boolean;
   cacheControl?: CacheControlExtensionOptions;
   extensions?: Array<() => GraphQLExtension>;
-  dataSources?: () => DataSources<TContext>;
+  dataSources?: () => DataSources<TContext> | Promise<DataSources<TContext>>;
   cache?: KeyValueCache;
   persistedQueries?: PersistedQueryOptions;
   plugins?: ApolloServerPlugin[];

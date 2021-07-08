@@ -92,7 +92,7 @@ export interface GraphQLRequestPipelineConfig<TContext> {
   executor?: GraphQLExecutor;
   fieldResolver?: GraphQLFieldResolver<any, TContext>;
 
-  dataSources?: () => DataSources<TContext>;
+  dataSources?: () => DataSources<TContext> | Promise<DataSources<TContext>>;
 
   extensions?: Array<() => GraphQLExtension>;
   persistedQueries?: PersistedQueryOptions;
@@ -740,7 +740,7 @@ export async function processGraphQLRequest<TContext>(
     if (config.dataSources) {
       const context = requestContext.context;
 
-      const dataSources = config.dataSources();
+      const dataSources = await config.dataSources();
 
       const initializers: any[] = [];
       for (const dataSource of Object.values(dataSources)) {

@@ -81,6 +81,26 @@ describe('ApolloServerBase dataSources', () => {
     expect(actualCallOrder).toEqual(expectedCallOrder);
   });
 
+  it('initializes datasources from an asynchronous datasource creator function', async () => {
+    const initialize = jest.fn();
+
+    const server = new ApolloServerBase({
+      typeDefs,
+      resolvers: {
+        Query: {
+          hello() {
+            return 'world';
+          }
+        }
+      },
+      dataSources: async () => ({ x: { initialize }, y: { initialize } })
+    });
+
+    await server.executeOperation({ query: "query { hello }"});
+
+    expect(initialize).toHaveBeenCalledTimes(2);
+  });
+
   it('makes datasources available on resolver contexts', async () => {
     const message = 'hi from dataSource';
     const getData = jest.fn(() => message);
