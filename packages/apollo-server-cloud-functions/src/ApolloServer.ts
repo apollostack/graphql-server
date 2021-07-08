@@ -9,7 +9,7 @@ import { graphqlCloudFunction } from './googleCloudApollo';
 
 export interface CreateHandlerOptions {
   cors?: {
-    origin?: boolean | string | string[];
+    origin?: boolean | string | (string | RegExp)[];
     methods?: string | string[];
     allowedHeaders?: string | string[];
     exposedHeaders?: string | string[];
@@ -82,13 +82,24 @@ export class ApolloServer extends ApolloServerBase {
         return;
       }
 
-      if (cors) {
+      if (cors && cors.origin) {
+          const requestOrigin = req.get('origin') || '';
         if (typeof cors.origin === 'string') {
           res.set('Access-Control-Allow-Origin', cors.origin);
         } else if (
           typeof cors.origin === 'boolean' ||
           (Array.isArray(cors.origin) &&
-            cors.origin.includes(req.get('origin') || ''))
+            // Check settings array for strings matching origin
+            (cors.origin.includes(requestOrigin) ||
+              // Check settings array for Regex matching origin
+              cors.origin.some((setting) =>
+                setting instanceof RegExp && setting.test(requestOrigin)
+              )
+            )
+          ) ||
+          // Check origin for matching Regex
+          (cors.origin instanceof RegExp &&
+            cors.origin.test(requestOrigin))
         ) {
           res.set('Access-Control-Allow-Origin', req.get('origin'));
         }

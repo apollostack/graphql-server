@@ -45,7 +45,7 @@ function eventPath(event: APIGatewayProxyEventV1OrV2): string {
 }
 export interface CreateHandlerOptions<EventT extends APIGatewayProxyEventV1OrV2 = APIGatewayProxyEventV1OrV2> {
   cors?: {
-    origin?: boolean | string | string[];
+    origin?: boolean | string | (string | RegExp)[];
     methods?: string | string[];
     allowedHeaders?: string | string[];
     exposedHeaders?: string | string[];
@@ -192,8 +192,15 @@ export class ApolloServer<EventT extends APIGatewayProxyEventV1OrV2 = APIGateway
             requestOrigin &&
             (typeof cors.origin === 'boolean' ||
               (Array.isArray(cors.origin) &&
-                requestOrigin &&
-                cors.origin.includes(requestOrigin)))
+              // Check settings array for strings matching origin
+              (cors.origin.includes(requestOrigin) ||
+                // Check settings array for Regex matching origin
+                cors.origin.some((setting) =>
+                  setting instanceof RegExp &&
+                    setting.test(requestOrigin)
+                )
+              )
+            ))
           ) {
             requestCorsHeaders.set(
               'access-control-allow-origin',
