@@ -74,14 +74,14 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
   protected resolveURL(request: RequestOptions): ValueOrPromise<URL> {
     let path = request.path;
     if (path.startsWith('/')) {
-      path = path.slice(1);
+      path = encodeURIComponent(path.slice(1));
     }
     const baseURL = this.baseURL;
     if (baseURL) {
       const normalizedBaseURL = baseURL.endsWith('/')
         ? baseURL
         : baseURL.concat('/');
-      return new URL(path, normalizedBaseURL);
+      return new URL(normalizedBaseURL + path);
     } else {
       return new URL(path);
     }

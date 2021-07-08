@@ -89,6 +89,69 @@ describe('RESTDataSource', () => {
       expect(fetch.mock.calls[0][0].url).toEqual('https://example.com/api/foo');
     });
 
+    it('prevents parameters escaping the base host', async () => {
+      const dataSource = new (class extends RESTDataSource {
+        baseURL = 'https://api.example.com/entity';
+
+        getByUuid(entityUuid: string) {
+          return this.get(`/${entityUuid}`);
+        }
+      })();
+
+      dataSource.httpCache = httpCache;
+
+      fetch.mockJSONResponseOnce();
+
+      await dataSource.getByUuid('http://hax.com');
+
+      expect(fetch.mock.calls.length).toEqual(1);
+      expect(fetch.mock.calls[0][0].url).toEqual(
+        'https://api.example.com/entity/http%3A%2F%2Fhax.com',
+      );
+    });
+
+    it('prevents parameters escaping the base path where given path is guarded', async () => {
+      const dataSource = new (class extends RESTDataSource {
+        baseURL = 'https://api.example.com/entity';
+
+        getByUuid(entityUuid: string) {
+          return this.get(`/${entityUuid}`);
+        }
+      })();
+
+      dataSource.httpCache = httpCache;
+
+      fetch.mockJSONResponseOnce();
+
+      await dataSource.getByUuid('../private-only');
+
+      expect(fetch.mock.calls.length).toEqual(1);
+      expect(fetch.mock.calls[0][0].url).toEqual(
+        'https://api.example.com/entity/..%2Fprivate-only',
+      );
+    });
+
+    it('allows parameters to escape the base path where given path is unguarded', async () => {
+      const dataSource = new (class extends RESTDataSource {
+        baseURL = 'https://api.example.com/start-here';
+
+        getRelativePath(path: string) {
+          return this.get(path);
+        }
+      })();
+
+      dataSource.httpCache = httpCache;
+
+      fetch.mockJSONResponseOnce();
+
+      await dataSource.getRelativePath('..');
+
+      expect(fetch.mock.calls.length).toEqual(1);
+      expect(fetch.mock.calls[0][0].url).toEqual(
+        'https://api.example.com/',
+      );
+    });
+
     it('allows computing a dynamic base URL', async () => {
       const dataSource = new (class extends RESTDataSource {
         get baseURL() {
