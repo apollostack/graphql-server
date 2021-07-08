@@ -41,6 +41,18 @@ describe('ApolloServerBase construction', () => {
     ).not.toThrow();
   });
 
+  it('succeeds when a valid schema router is provided to the schema configuration option', () => {
+    expect(
+      () =>
+        new ApolloServerBase({
+          typeDefs,
+          resolvers,
+          schemaRouter: () =>
+            buildServiceDefinition([{ typeDefs, resolvers }]).schema!,
+        }),
+    ).not.toThrow();
+  });
+
   it('succeeds when passed a graphVariant in construction', () => {
     expect(() =>
       new ApolloServerBase({
@@ -170,6 +182,47 @@ describe('ApolloServerBase executeOperation', () => {
     expect(result.errors?.[0].extensions).toStrictEqual({
       code: 'INTERNAL_SERVER_ERROR',
     });
+  });
+
+  it('selects the correct schema when a schema router is present', async () => {
+    const privilegedTypeDefs = gql`
+      ${typeDefs}
+      extend type Query {
+        privilegedQuery: Boolean
+      }
+    `;
+    const privilegedResolvers = {
+      Query: {
+        ...resolvers.Query,
+        privilegedQuery: () => true
+      }
+    };
+    const privilegedSchema = buildServiceDefinition(
+      [{typeDefs: privilegedTypeDefs, resolvers: privilegedResolvers }]
+    ).schema!;
+    const server = new ApolloServerBase({
+      typeDefs,
+      resolvers,
+      schemaRouter: async ctx => ctx?.role === 'privileged' ? privilegedSchema : undefined,
+    });
+    const query = 'query { hello, privilegedQuery }';
+    const resultUnprivileged = await server.executeOperation({ query });
+    const resultPrivileged = await server.executeOperation({ query }, {
+      role: 'privileged'
+    });
+
+    expect(resultUnprivileged.errors).toHaveLength(1);
+    expect(resultUnprivileged.errors?.[0].extensions).toStrictEqual({
+      code: 'GRAPHQL_VALIDATION_FAILED',
+    });
+
+    const expected = {
+      hello: 'world',
+      privilegedQuery: true
+    };
+
+    expect(resultPrivileged.errors).toBeUndefined();
+    expect(resultPrivileged.data).toEqual(expected);
   });
 
   it('returns error information with details when debug is enabled', async () => {

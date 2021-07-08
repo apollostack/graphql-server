@@ -39,6 +39,11 @@ export type ContextFunction<FunctionParams = any, ProducedContext = object> = (
   context: FunctionParams,
 ) => ValueOrPromise<Context<ProducedContext>>;
 
+export type ResolveSchemaFromContextFunction<FunctionParams = any> = (
+  context: FunctionParams,
+  defaultSchema: GraphQLSchema
+) => ValueOrPromise<GraphQLSchema|void>;
+
 // A plugin can return an interface that matches `ApolloServerPlugin`, or a
 // factory function that returns `ApolloServerPlugin`.
 export type PluginDefinition = ApolloServerPlugin | (() => ApolloServerPlugin);
@@ -108,6 +113,7 @@ export interface Config extends BaseConfig {
   parseOptions?: GraphQLParseOptions;
   resolvers?: IResolvers | Array<IResolvers>;
   schema?: GraphQLSchema;
+  schemaRouter?: ResolveSchemaFromContextFunction;
   schemaDirectives?: Record<string, typeof SchemaDirectiveVisitor>;
   context?: Context | ContextFunction;
   introspection?: boolean;

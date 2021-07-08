@@ -163,6 +163,29 @@ Note that if you are using [file uploads](../data/file-uploads/), you need to ad
 </td>
 </tr>
 
+<tr>
+<td>
+
+
+<tr>
+<td>
+
+###### `schemaRouter`
+
+`Function`
+
+</td>
+
+<td>
+
+A function taking two arguments, the context provided by the [Node.js middleware](../integrations/middleware/) for this request, and the default schema.
+
+The function should return a promise that resolves to a `GraphQLSchema` object, denoting what schema to use for this request. If the function returns a falsy value, the default schema will be used.
+
+See [schema routing](../integrations/schema-routing) for details.
+
+</td>
+</tr>
 
 <tr>
 <td>

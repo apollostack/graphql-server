@@ -63,3 +63,7 @@ The parameter you provide to `applyMiddleware` is your middleware's top-level re
 When you pass your app to `applyMiddleware`, Apollo Server automatically configures various middleware (including body parsing, the GraphQL Playground frontend, and CORS support), so you don't need to apply them with a mechanism like `app.use`.
 
 > **Note:** When integrating with hapi, call `applyMiddleware` with `await`.
+
+### Dynamic schema routing
+
+See [Schema Routing](./schema-routing) for information on how to switch the schema on a per-request basis.
