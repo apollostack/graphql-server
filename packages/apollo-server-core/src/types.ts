@@ -52,6 +52,8 @@ export interface SubscriptionServerOptions {
     context: ConnectionContext,
   ) => any;
   onDisconnect?: (websocket: WebSocket, context: ConnectionContext) => any;
+  onOperation?: Function;
+  onOperationComplete?: Function;
 }
 
 type BaseConfig = Pick<

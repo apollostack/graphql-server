@@ -926,6 +926,8 @@ export class ApolloServerBase {
       onConnect,
       keepAlive,
       path,
+      onOperation,
+      onOperationComplete,
     } = this.subscriptionServerOptions;
 
     let schema: GraphQLSchema;
@@ -962,7 +964,7 @@ export class ApolloServerBase {
           ? onConnect
           : (connectionParams: Object) => ({ ...connectionParams }),
         onDisconnect: onDisconnect,
-        onOperation: async (
+        onOperation: onOperation ? onOperation : (async (
           message: { payload: any },
           connection: ExecutionParams,
         ) => {
@@ -993,7 +995,8 @@ export class ApolloServerBase {
           }
 
           return { ...connection, context };
-        },
+        }),
+        onOperationComplete,
         keepAlive,
         validationRules: this.requestOptions.validationRules,
       },
