@@ -28,18 +28,21 @@ export class ApolloServer extends ApolloServerBase {
   private httpServer?: stoppable.StoppableServer;
   private cors?: CorsOptions | boolean;
   private onHealthCheck?: (req: express.Request) => Promise<any>;
+  private healthCheckPath?: string;
   private stopGracePeriodMillis: number;
 
   constructor(
     config: ApolloServerExpressConfig & {
       cors?: CorsOptions | boolean;
       onHealthCheck?: (req: express.Request) => Promise<any>;
+      healthCheckPath?: string;
       stopGracePeriodMillis?: number;
     },
   ) {
     super(config);
     this.cors = config && config.cors;
     this.onHealthCheck = config && config.onHealthCheck;
+    this.healthCheckPath = config && config.healthCheckPath;
     this.stopGracePeriodMillis = config?.stopGracePeriodMillis ?? 10_000;
   }
 
@@ -117,6 +120,7 @@ export class ApolloServer extends ApolloServerBase {
     super.applyMiddleware({
       app,
       path: '/',
+      healthCheckPath: this.healthCheckPath,
       bodyParserConfig: { limit: '50mb' },
       onHealthCheck: this.onHealthCheck,
       cors:
