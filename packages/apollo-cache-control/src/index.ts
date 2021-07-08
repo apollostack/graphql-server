@@ -53,7 +53,7 @@ export const plugin = (
   options: CacheControlExtensionOptions = Object.create(null),
 ): ApolloServerPlugin => ({
   requestDidStart(requestContext) {
-    const defaultMaxAge: number = options.defaultMaxAge || 0;
+    const defaultMaxAge: number | null = options.defaultMaxAge || null;
     const hints: MapResponsePathHints = new Map();
 
 
@@ -111,7 +111,7 @@ export const plugin = (
             hint.maxAge = defaultMaxAge;
           }
 
-          if (hint.maxAge !== undefined || hint.scope !== undefined) {
+          if (hint.maxAge !== null && (hint.maxAge !== undefined || hint.scope !== undefined)) {
             addHint(hints, info.path, hint);
           }
 
