@@ -294,10 +294,21 @@ export async function processGraphQLRequest<TContext>(
         return await sendErrorResponse(syntaxError, SyntaxError);
       }
 
-      const validationDidEnd = await dispatcher.invokeDidStartHook(
-        'validationDidStart',
-        requestContext as GraphQLRequestContextValidationDidStart<TContext>,
-      );
+      let validationDidEnd
+
+      try {
+        validationDidEnd = await dispatcher.invokeDidStartHook(
+          'validationDidStart',
+          requestContext as GraphQLRequestContextValidationDidStart<TContext>,
+        );
+      } catch (validationError) {
+        if (validationError instanceof ApolloError) {
+          return await sendErrorResponse(validationError, ValidationError);
+        }
+
+        // Not an expected error.
+        throw validationError
+      }
 
       const validationErrors = validate(requestContext.document);
 
