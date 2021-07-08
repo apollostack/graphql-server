@@ -37,6 +37,7 @@ const fileUploadMiddleware = (
   server: ApolloServerBase,
 ) => async (ctx: Koa.Context, next: Function) => {
   if (typeis(ctx.req, ['multipart/form-data'])) {
+    const finished = new Promise(resolve => ctx.req.on('end', resolve));
     try {
       ctx.request.body = await processFileUploads(
         ctx.req,
@@ -51,6 +52,8 @@ const fileUploadMiddleware = (
         formatter: server.requestOptions.formatError,
         debug: server.requestOptions.debug,
       });
+    } finally {
+      await finished;
     }
   } else {
     return next();
