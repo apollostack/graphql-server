@@ -112,6 +112,8 @@ It is important to set output binding name to **$return** to work correctly at t
 }
 ```
 
+**Note:** To enable the health checks it's necessary to [modify the route template](https://github.com/apollographql/apollo-server/tree/main/packages/apollo-server-azure-functions/README.md#enabling-health-checks) in the `function.json` file.
+
 Finally, we need to return to the base folder and run the `func host start` command again after that, go back to your browser and refresh your page to see the apollo server running.
 
 ```shell

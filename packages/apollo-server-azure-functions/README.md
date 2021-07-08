@@ -138,6 +138,34 @@ The options correspond to the [express cors configuration](https://github.com/ex
 * `credentials`: boolean
 * `maxAge`: number
 
+## Enabling health checks
+
+To enable the health checks it's necessary to modify the route template in the `function.json` file. To accomplish this add the `*` wildcard to the `route` property into the `bindings` section.
+
+```
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "route": "{*segments}",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ]
+}
+```
+
 ## Principles
 
 GraphQL Server is built with the following principles in mind:

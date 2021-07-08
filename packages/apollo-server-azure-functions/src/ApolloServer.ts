@@ -18,6 +18,7 @@ export interface CreateHandlerOptions {
     credentials?: boolean;
     maxAge?: number;
   };
+  onHealthCheck?: (req: HttpRequest) => Promise<any>;
 }
 
 export class ApolloServer extends ApolloServerBase {
@@ -35,7 +36,7 @@ export class ApolloServer extends ApolloServerBase {
     return super.graphQLServerOptions({ request, context });
   }
 
-  public createHandler({ cors }: CreateHandlerOptions = { cors: undefined }) {
+  public createHandler({ cors, onHealthCheck }: CreateHandlerOptions = { cors: undefined, onHealthCheck: undefined }) {
     const corsHeaders: HttpResponse['headers'] = {};
 
     if (cors) {
@@ -102,6 +103,36 @@ export class ApolloServer extends ApolloServerBase {
           headers: corsHeaders,
         });
         return;
+      }
+
+      if (req.url?.endsWith('/.well-known/apollo/server-health')) {
+        const successfulResponse = {
+          body: JSON.stringify({ status: 'pass' }),
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/health+json',
+            ...corsHeaders,
+          },
+        };
+        if (onHealthCheck) {
+          onHealthCheck(req)
+            .then(() => {
+              return context.done(null, successfulResponse);
+            })
+            .catch(() => {
+              return context.done(null, {
+                body: JSON.stringify({ status: 'fail' }),
+                statusCode: 503,
+                headers: {
+                  'Content-Type': 'application/health+json',
+                  ...corsHeaders,
+                },
+              });
+            });
+          return;
+        } else {
+          return context.done(null, successfulResponse);
+        }
       }
 
       if (this.playgroundOptions && req.method === 'GET') {
