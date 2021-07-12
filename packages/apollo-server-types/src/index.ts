@@ -89,6 +89,11 @@ export interface GraphQLServiceContext {
   serverlessFramework: boolean;
 }
 
+export interface GraphQLSchemaContext {
+  apiSchema: GraphQLSchema,
+  coreSupergraphSdl?: string,
+}
+
 export interface GraphQLRequest {
   query?: string;
   operationName?: string;
