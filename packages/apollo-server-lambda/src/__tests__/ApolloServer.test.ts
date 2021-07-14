@@ -3,7 +3,11 @@ import request from 'supertest';
 import express from 'express';
 import { createMockServer } from './mockAPIGatewayServer';
 import { Config, gql } from 'apollo-server-core';
-import { ApolloServer, CreateHandlerOptions } from '../ApolloServer';
+import {
+  ApolloServer,
+  CreateHandlerOptions,
+  LambdaContextFunctionParams,
+} from '../ApolloServer';
 import {
   createServerInfo,
   testApolloServer,
@@ -52,7 +56,7 @@ describe('apollo-server-lambda', () => {
 
   const createLambda = (
     createHandlerOptions: CreateHandlerOptions = {},
-    config: Config = { typeDefs, resolvers },
+    config: Config<LambdaContextFunctionParams> = { typeDefs, resolvers },
   ) => {
     const server = new ApolloServer(config);
     const handler = server.createHandler(createHandlerOptions);
@@ -60,6 +64,21 @@ describe('apollo-server-lambda', () => {
   };
 
   describe('context', () => {
+    it('context functions typecheck', async () => {
+      // We want to make sure that TS allows you to write the context function
+      // arguments. Note that the calls to createLambda that set context below
+      // are only good enough if we're confident that the declaration of the
+      // `config` argument on `createLambda` above matches the generics used in
+      // ApolloServer itself, so it's reasonable for us to validate against
+      // ApolloServer directly.
+      new ApolloServer({
+        typeDefs: 'type Query { x: Int }',
+        context({ event: _event, context: _context, express }) {
+          const { req: _req, res: _res } = express;
+        },
+      });
+    });
+
     it('receives both Express and Lambda context', async () => {
       const app = createLambda(
         {},

@@ -9,6 +9,8 @@ The version headers in this history reflect the versions of Apollo Server itself
 
 ## vNEXT
 
+- `apollo-server-lambda`: Fix TypeScript types for `context` function. (In 3.0.0, the TS types for the `context` function were accidentally inherited from `apollo-server-express` instead of using the correct Lambda-specific types). [PR #XXXX](https://github.com/apollographql/apollo-server/pull/XXXX)
+
 ## v3.0.0
 
 ### BREAKING CHANGES
