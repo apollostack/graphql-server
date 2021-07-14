@@ -4,8 +4,6 @@ import { json, OptionsJson } from 'body-parser';
 import {
   GraphQLOptions,
   ApolloServerBase,
-  ContextFunction,
-  Context,
   Config,
   runHttpQuery,
   HttpQueryError,
@@ -41,15 +39,12 @@ export interface ExpressContext {
   res: express.Response;
 }
 
-export interface ApolloServerExpressConfig extends Config {
-  context?: ContextFunction<ExpressContext, Context> | Context;
-}
+export type ApolloServerExpressConfig = Config<ExpressContext>;
 
-export class ApolloServer extends ApolloServerBase {
-  constructor(config: ApolloServerExpressConfig) {
-    super(config);
-  }
-
+export class ApolloServer<
+  ContextFunctionParams = ExpressContext,
+  ProducedContext = object,
+> extends ApolloServerBase<ContextFunctionParams, ProducedContext> {
   // This translates the arguments from the middleware into graphQL options It
   // provides typings for the integration specific behavior, ideally this would
   // be propagated with a generic to the super class
@@ -57,7 +52,8 @@ export class ApolloServer extends ApolloServerBase {
     req: express.Request,
     res: express.Response,
   ): Promise<GraphQLOptions> {
-    return super.graphQLServerOptions({ req, res });
+    const contextParams: ExpressContext = { req, res };
+    return super.graphQLServerOptions(contextParams);
   }
 
   public applyMiddleware({ app, ...rest }: ServerRegistration) {

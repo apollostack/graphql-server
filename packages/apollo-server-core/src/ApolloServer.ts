@@ -109,18 +109,23 @@ class UnreachableCaseError extends Error {
     super(`Unreachable case: ${val}`);
   }
 }
-export class ApolloServerBase {
+export class ApolloServerBase<
+  ContextFunctionParams = any,
+  ProducedContext = object,
+> {
   private logger: Logger;
   public graphqlPath: string = '/graphql';
   public requestOptions: Partial<GraphQLServerOptions<any>> =
     Object.create(null);
 
-  private context?: Context | ContextFunction;
+  private context?:
+    | Context
+    | ContextFunction<ContextFunctionParams, ProducedContext>;
   private apolloConfig: ApolloConfig;
   protected plugins: ApolloServerPlugin[] = [];
 
   private parseOptions: ParseOptions;
-  private config: Config;
+  private config: Config<ContextFunctionParams, ProducedContext>;
   private state: ServerState;
   private toDispose = new Set<() => Promise<void>>();
   private toDisposeLast = new Set<() => Promise<void>>();
@@ -128,7 +133,7 @@ export class ApolloServerBase {
   private landingPage: LandingPage | null = null;
 
   // The constructor should be universal across all environments. All environment specific behavior should be set by adding or overriding methods
-  constructor(config: Config) {
+  constructor(config: Config<ContextFunctionParams, ProducedContext>) {
     if (!config) throw new Error('ApolloServer requires options.');
     this.config = config;
     const {
@@ -824,7 +829,13 @@ export class ApolloServerBase {
   // from an object containing the request and other integration specific
   // options
   protected async graphQLServerOptions(
-    integrationContextArgument?: Record<string, any>,
+    // We ought to be able to declare this as taking ContextFunctionParams, but
+    // that gets us into weird business around inheritance, since a subclass (eg
+    // Lambda subclassing Express) may have a different ContextFunctionParams.
+    // So it's the job of the subclass's function that calls this function to
+    // make sure that its argument properly matches the particular subclass's
+    // context params type.
+    integrationContextArgument?: any,
   ): Promise<GraphQLServerOptions> {
     const { schema, schemaHash, documentStore } = await this._ensureStarted();
 
@@ -877,7 +888,7 @@ export class ApolloServerBase {
     request: Omit<GraphQLRequest, 'query'> & {
       query?: string | DocumentNode;
     },
-    integrationContextArgument?: Record<string, any>,
+    integrationContextArgument?: ContextFunctionParams,
   ) {
     // Since this function is mostly for testing, you don't need to explicitly
     // start your server before calling it. (That also means you can use it with

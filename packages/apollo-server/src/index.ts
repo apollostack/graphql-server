@@ -7,7 +7,7 @@ import express from 'express';
 import http from 'http';
 import stoppable from 'stoppable';
 import {
-  ApolloServer as ApolloServerBase,
+  ApolloServer as ApolloServerExpress,
   CorsOptions,
   ApolloServerExpressConfig,
 } from 'apollo-server-express';
@@ -24,7 +24,7 @@ export interface ServerInfo {
   server: http.Server;
 }
 
-export class ApolloServer extends ApolloServerBase {
+export class ApolloServer extends ApolloServerExpress {
   private httpServer?: stoppable.StoppableServer;
   private cors?: CorsOptions | boolean;
   private onHealthCheck?: (req: express.Request) => Promise<any>;

@@ -1,6 +1,7 @@
 import type { Handler } from 'aws-lambda';
 import {
   ApolloServer as ApolloServerExpress,
+  ExpressContext,
   GetMiddlewareOptions,
 } from 'apollo-server-express';
 import type { GraphQLOptions } from 'apollo-server-core';
@@ -16,6 +17,12 @@ export interface CreateHandlerOptions {
   expressGetMiddlewareOptions?: GetMiddlewareOptions;
 }
 
+export interface LambdaContextFunctionParams {
+  event: ReturnType<typeof getCurrentInvoke>['event'];
+  context: ReturnType<typeof getCurrentInvoke>['context'];
+  express: ExpressContext;
+}
+
 function defaultExpressAppFromMiddleware(
   middleware: express.RequestHandler,
 ): express.Application {
@@ -23,7 +30,7 @@ function defaultExpressAppFromMiddleware(
   app.use(middleware);
   return app;
 }
-export class ApolloServer extends ApolloServerExpress {
+export class ApolloServer extends ApolloServerExpress<LambdaContextFunctionParams> {
   protected override serverlessFramework(): boolean {
     return true;
   }
@@ -56,10 +63,11 @@ export class ApolloServer extends ApolloServerExpress {
     res: express.Response,
   ): Promise<GraphQLOptions> {
     const { event, context } = getCurrentInvoke();
-    return super.graphQLServerOptions({
+    const contextParams: LambdaContextFunctionParams = {
       event,
       context,
       express: { req, res },
-    });
+    };
+    return super.graphQLServerOptions(contextParams);
   }
 }
