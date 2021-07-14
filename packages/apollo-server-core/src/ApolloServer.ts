@@ -149,6 +149,9 @@ export class ApolloServerBase {
       ...requestOptions
     } = config;
 
+    // initialized experimental parameter
+    this.experimental_approximateDocumentStoreMiB = experimental_approximateDocumentStoreMiB;
+
     // Setup logging facilities
     if (config.logger) {
       this.logger = config.logger;
